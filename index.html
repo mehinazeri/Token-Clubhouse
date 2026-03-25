@@ -1,158 +1,144 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin's Clubhouse 🪙</title>
+  <title>Melorin's Clubhouse 5.1</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root {
       --primary: #6c5ce7;
-      --secondary: #a29bfe;
-      --success: #00b894;
-      --error: #ff7675;
-      --bg: #f8faff;
+      --bg: #f0f2f5;
       --card: #ffffff;
+      --accent: #ede7f6;
     }
 
-    body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; text-align: center; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; touch-action: manipulation; color: #2d3436; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; touch-action: manipulation; }
     
-    /* LOGIN SCREEN - CANDY STYLE */
-    #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: white; }
-    #loginScreen h1 { font-size: 2.5rem; margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
-    #loginScreen input { margin: 8px; padding: 15px; border-radius: 15px; border: none; font-size: 18px; width: 240px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); outline: none; }
-    .login-btns { display: flex; gap: 12px; margin-top: 15px; }
-    #loginScreen button { background: var(--success); color: white; padding: 15px 30px; border: none; border-radius: 15px; font-weight: bold; font-size: 18px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 #008f72; }
-    #loginScreen button:active { transform: translateY(2px); box-shadow: 0 2px 0 #008f72; }
+    /* 85% HEIGHT CONTAINER */
+    #mainWrapper { width: 95%; max-width: 440px; height: 85vh; display: flex; flex-direction: column; position: relative; }
 
-    /* TOP STATS BAR */
-    .box { background: var(--card); padding: 15px; width: 100%; max-width: 480px; border-radius: 0 0 30px 30px; box-shadow: 0 10px 25px rgba(108, 92, 231, 0.1); position: relative; height: 50vh; display: flex; flex-direction: column; margin: 0 auto; box-sizing: border-box; }
+    /* LOADING OVERLAY */
+    #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; border-radius: 20px; }
+    .loading-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid var(--primary); font-weight: bold; color: var(--primary); }
+
+    /* LOGIN SCREEN */
+    #loginScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2100; color: white; border-radius: 20px; }
+    #loginScreen input { margin: 8px; padding: 12px; border-radius: 10px; border: none; font-size: 16px; width: 200px; text-align: center; }
+    #loginScreen button { background: #4CAF50; color: white; padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+
+    /* TOP APP SECTION (50%) */
+    .top-section { background: var(--card); padding: 10px; border-radius: 20px 20px 0 0; height: 50%; display: flex; flex-direction: column; box-sizing: border-box; border-bottom: 2px solid #eee; }
+    .top-stats { display: flex; justify-content: space-around; margin-bottom: 5px; }
+    .stat-pill { background: var(--accent); color: var(--primary); padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; }
     
-    .top-stats { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
-    .stat-pill { background: #f1f0ff; color: var(--primary); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; border: 1px solid #e0deff; display: flex; align-items: center; gap: 5px; }
+    .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+    .question { font-size: 32px; font-weight: bold; margin: 5px 0; color: #333; }
+    #displayArea { font-size: 26px; font-weight: bold; color: #4CAF50; min-height: 35px; letter-spacing: 2px; }
+
+    /* KEYBOARD SECTION (35%) */
+    #keyboardArea { height: 35%; background: #e0e4eb; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center; border-radius: 0 0 20px 20px; box-sizing: border-box; }
+    .kb-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 5px; }
+    .key { background: #fff; border-radius: 6px; padding: 12px 0; font-size: 18px; font-weight: bold; width: 38px; border: none; box-shadow: 0 3px 0 #abb1ba; }
+    .key:active { transform: translateY(2px); box-shadow: none; }
+    .key.wide { width: 70px; background: #4CAF50; color: white; }
+    .key.back { width: 70px; background: #ff5252; color: white; }
+    #numpad .key { width: 65px; padding: 15px 0; font-size: 22px; }
+
+    /* HELPER AREA - NOW PART OF TOP SECTION */
+    #helpArea { background: #fffde7; border-radius: 10px; border: 1px dashed #fbc02d; margin-top: 5px; padding: 5px; min-height: 60px; overflow-y: auto; display: flex; align-items: center; justify-content: center; flex-direction: column; }
     
-    #modeBtn { background: var(--primary); font-size: 11px; padding: 8px 15px; border-radius: 20px; color: white; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 3px 0 #5444c2; }
+    /* MATH DOTS - HORIZONTAL GRID */
+    .ten-frame-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin: 2px auto; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: #2196F3; }
+    .dot.secondary { background: #f44336; }
+    .dot.dim { background: #e0e0e0; border: 1px solid #ccc; }
+    .division-group { border: 2px solid #4CAF50; padding: 4px; border-radius: 8px; display: inline-block; margin: 2px; background: white; }
 
-    /* QUESTION CARD */
-    .question-container { background: #fff; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-    .question { font-size: 42px; font-weight: 900; margin: 10px 0; color: #2d3436; }
-    #displayArea { font-size: 32px; font-weight: bold; color: var(--success); min-height: 45px; letter-spacing: 4px; background: #f9f9f9; padding: 5px 20px; border-radius: 15px; border: 2px dashed #ddd; margin-bottom: 10px; }
-
-    .letter-grid { display: flex; justify-content: center; gap: 6px; margin: 10px 0; }
-    .letter-box { width: 36px; height: 48px; font-size: 24px; text-align: center; border: 3px solid #eee; border-radius: 12px; text-transform: lowercase; font-weight: 800; display: flex; align-items: center; justify-content: center; background: #fff; transition: 0.2s; }
-    .letter-box.active { border-color: var(--primary); background: #f9f8ff; box-shadow: 0 0 10px rgba(108, 92, 231, 0.2); }
-
-    #helpArea { margin-top: 10px; min-height: 80px; width: 100%; display: flex; align-items: center; justify-content: center; }
-    
-    /* KEYBOARD - MODERN DARK GLASS */
-    #keyboardArea { height: 35vh; background: #2d3436; padding: 12px 5px; display: flex; flex-direction: column; justify-content: center; border-top: 5px solid #1e272e; }
-    .kb-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
-    .key { background: #4b5563; color: white; border-radius: 10px; padding: 15px 0; font-size: 22px; font-weight: bold; width: 45px; cursor: pointer; border: none; box-shadow: 0 4px 0 #1e272e; }
-    .key:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e272e; background: #374151; }
-    .key.wide { width: 90px; background: var(--success); box-shadow: 0 4px 0 #008f72; }
-    .key.back { width: 90px; background: #e74c3c; box-shadow: 0 4px 0 #c0392b; }
-    #numpad .key { width: 80px; padding: 20px 0; font-size: 28px; }
-
-    /* FOOTER PROGRESS */
-    .bottom-info { height: 15vh; background: var(--card); padding: 10px 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
-    .progress-container { width: 100%; height: 18px; background: #edf2f7; border-radius: 20px; margin: 8px 0; overflow: hidden; border: 1px solid #e2e8f0; }
-    #progressBar { height: 100%; width: 0%; background: linear-gradient(90deg, #6c5ce7, #a29bfe); transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .token-labels { display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; color: #636e72; }
-    #message { font-weight: 800; font-size: 22px; height: 30px; margin-bottom: 5px; color: var(--primary); }
-    
-    /* BOMB & DOTS */
-    #bomb { font-size: 60px; display: none; position: absolute; top: 0; z-index: 500; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; background: #0984e3; margin: 2px; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.1); }
-    .dot.secondary { background: #d63031; }
-    .dot.dim { background: #dfe6e9; border: 1px solid #b2bec3; }
-    .division-group { border: 3px solid var(--success); padding: 8px; border-radius: 15px; display: inline-block; margin: 5px; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-
-    .shake { animation: shakeAnim 0.5s; }
-    @keyframes shakeAnim { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    /* FOOTER (Progress outside the 85% to stay consistent) */
+    #tokenFooter { width: 100%; max-width: 440px; padding: 5px; box-sizing: border-box; }
+    .progress-container { width: 100%; height: 12px; background: #ddd; border-radius: 6px; overflow: hidden; margin-top: 5px; }
+    #progressBar { height: 100%; width: 0%; background: #4CAF50; transition: width 0.5s; }
+    #message { font-weight: bold; height: 20px; font-size: 16px; margin: 2px 0; }
+    .confetti { position: fixed; width: 8px; height: 8px; z-index: 3000; pointer-events: none; }
+    @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } }
   </style>
 </head>
 <body>
 
-<div id="loginScreen">
-  <h1>Clubhouse 🪙</h1>
-  <input type="text" id="loginName" placeholder="What's your name?">
-  <input type="password" id="loginPin" placeholder="4-Digit PIN" maxlength="4">
-  <div class="login-btns">
-    <button onclick="attemptLogin()">Let's Play!</button>
-    <button onclick="updatePinPrompt()" style="background:#0984e3; box-shadow: 0 4px 0 #0767b0;">New PIN</button>
+<div id="mainWrapper">
+  <div id="loadingOverlay" style="display:none;">
+    <div class="loading-box">Connecting to your profile...</div>
   </div>
-  <p id="loginError"></p>
-</div>
 
-<div class="box" id="appContent" style="display:none;">
-  <button id="resetBtn" onclick="resetPrompt()" style="position:absolute; top:5px; left:5px; opacity:0.1; border:none; background:none; cursor:pointer;">⚙️</button>
-  <div class="top-stats">
-    <div class="stat-pill">🧮 <span id="mathCountDisplay">0</span>/10</div>
-    <div class="stat-pill">🔤 <span id="spellCountDisplay">0</span>/20</div>
-    <button id="modeBtn" onclick="toggleMode()">Change Game</button>
+  <div id="loginScreen">
+    <h1>Clubhouse 🪙</h1>
+    <input type="text" id="loginName" placeholder="Name">
+    <input type="password" id="loginPin" placeholder="PIN" maxlength="4">
+    <button onclick="attemptLogin()">Let's Play!</button>
+    <p id="loginError" style="color:#ffcdd2; font-size:12px; margin-top:10px;"></p>
   </div>
-  
-  <div class="question-container">
-    <div id="mathArea">
-      <div class="question" id="mathQuestion"></div>
-      <div id="displayArea">?</div>
+
+  <div class="top-section" id="appContent" style="display:none;">
+    <button onclick="resetPrompt()" style="position:absolute; top:5px; left:5px; opacity:0.1; border:none; background:none;">⚙️</button>
+    <div class="top-stats">
+      <div class="stat-pill">Math: <span id="mathCountDisplay">0</span>/10</div>
+      <div class="stat-pill">Spell: <span id="spellCountDisplay">0</span>/20</div>
+      <button id="modeBtn" onclick="toggleMode()" style="background:var(--primary); color:white; border:none; border-radius:10px; font-size:10px; padding:4px 8px;">Switch</button>
     </div>
     
-    <div id="spellingArea" style="display:none;">
-      <button onclick="sayWord()" style="background:#0984e3; border:none; border-radius:20px; width:60px; height:60px; color:white; font-size:28px; cursor:pointer; margin-bottom:10px; box-shadow:0 4px 0 #0767b0;">🔊</button>
-      <div class="letter-grid" id="letterGrid"></div>
+    <div class="question-area">
+      <div id="mathArea">
+        <div class="question" id="mathQuestion"></div>
+        <div id="displayArea">?</div>
+      </div>
+      <div id="spellingArea" style="display:none;">
+        <button onclick="sayWord()" style="background:#2196F3; border:none; border-radius:50%; width:40px; height:40px; color:white; margin-bottom:5px;">🔊</button>
+        <div id="letterGrid" style="display:flex; justify-content:center; gap:5px;"></div>
+      </div>
+    </div>
+
+    <div id="helpArea">
+      <div id="visualAid"></div>
     </div>
   </div>
 
-  <div id="helpArea">
-    <div id="bomb">💣</div>
-    <div id="visualAid"></div>
-  </div>
-</div>
-
-<div id="keyboardArea" style="display:none;">
-  <div id="numpad" style="display:none;">
-    <div class="kb-row">
-      <button class="key" onclick="keyPress('1')">1</button><button class="key" onclick="keyPress('2')">2</button><button class="key" onclick="keyPress('3')">3</button>
+  <div id="keyboardArea" style="display:none;">
+    <div id="numpad" style="display:none;">
+      <div class="kb-row">
+        <button class="key" onclick="keyPress('1')">1</button><button class="key" onclick="keyPress('2')">2</button><button class="key" onclick="keyPress('3')">3</button>
+      </div>
+      <div class="kb-row">
+        <button class="key" onclick="keyPress('4')">4</button><button class="key" onclick="keyPress('5')">5</button><button class="key" onclick="keyPress('6')">6</button>
+      </div>
+      <div class="kb-row">
+        <button class="key" onclick="keyPress('7')">7</button><button class="key" onclick="keyPress('8')">8</button><button class="key" onclick="keyPress('9')">9</button>
+      </div>
+      <div class="kb-row">
+        <button class="key back" onclick="keyPress('DEL')">⌫</button><button class="key" onclick="keyPress('0')">0</button><button class="key wide" onclick="checkAnswer()">OK</button>
+      </div>
     </div>
-    <div class="kb-row">
-      <button class="key" onclick="keyPress('4')">4</button><button class="key" onclick="keyPress('5')">5</button><button class="key" onclick="keyPress('6')">6</button>
-    </div>
-    <div class="kb-row">
-      <button class="key" onclick="keyPress('7')">7</button><button class="key" onclick="keyPress('8')">8</button><button class="key" onclick="keyPress('9')">9</button>
-    </div>
-    <div class="kb-row">
-      <button class="key back" onclick="keyPress('DEL')">⌫</button><button class="key" onclick="keyPress('0')">0</button><button class="key wide" onclick="checkAnswer()">OK</button>
-    </div>
-  </div>
-
-  <div id="spellpad" style="display:none;">
-    <div class="kb-row">
-      <button class="key" onclick="keyPress('q')">q</button><button class="key" onclick="keyPress('w')">w</button><button class="key" onclick="keyPress('e')">e</button><button class="key" onclick="keyPress('r')">r</button><button class="key" onclick="keyPress('t')">t</button><button class="key" onclick="keyPress('y')">y</button><button class="key" onclick="keyPress('u')">u</button><button class="key" onclick="keyPress('i')">i</button><button class="key" onclick="keyPress('o')">o</button><button class="key" onclick="keyPress('p')">p</button>
-    </div>
-    <div class="kb-row">
-      <button class="key" onclick="keyPress('a')">a</button><button class="key" onclick="keyPress('s')">s</button><button class="key" onclick="keyPress('d')">d</button><button class="key" onclick="keyPress('f')">f</button><button class="key" onclick="keyPress('g')">g</button><button class="key" onclick="keyPress('h')">h</button><button class="key" onclick="keyPress('j')">j</button><button class="key" onclick="keyPress('k')">k</button><button class="key" onclick="keyPress('l')">l</button>
-    </div>
-    <div class="kb-row">
-      <button class="key back" onclick="keyPress('DEL')">⌫</button><button class="key" onclick="keyPress('z')">z</button><button class="key" onclick="keyPress('x')">x</button><button class="key" onclick="keyPress('c')">c</button><button class="key" onclick="keyPress('v')">v</button><button class="key" onclick="keyPress('b')">b</button><button class="key" onclick="keyPress('n')">n</button><button class="key" onclick="keyPress('m')">m</button><button class="key wide" onclick="checkAnswer()">OK</button>
+    <div id="spellpad" style="display:none;">
+      <div class="kb-row"><button class="key" onclick="keyPress('q')">q</button><button class="key" onclick="keyPress('w')">w</button><button class="key" onclick="keyPress('e')">e</button><button class="key" onclick="keyPress('r')">r</button><button class="key" onclick="keyPress('t')">t</button><button class="key" onclick="keyPress('y')">y</button><button class="key" onclick="keyPress('u')">u</button><button class="key" onclick="keyPress('i')">i</button><button class="key" onclick="keyPress('o')">o</button><button class="key" onclick="keyPress('p')">p</button></div>
+      <div class="kb-row"><button class="key" onclick="keyPress('a')">a</button><button class="key" onclick="keyPress('s')">s</button><button class="key" onclick="keyPress('d')">d</button><button class="key" onclick="keyPress('f')">f</button><button class="key" onclick="keyPress('g')">g</button><button class="key" onclick="keyPress('h')">h</button><button class="key" onclick="keyPress('j')">j</button><button class="key" onclick="keyPress('k')">k</button><button class="key" onclick="keyPress('l')">l</button></div>
+      <div class="kb-row"><button class="key back" onclick="keyPress('DEL')">⌫</button><button class="key" onclick="keyPress('z')">z</button><button class="key" onclick="keyPress('x')">x</button><button class="key" onclick="keyPress('c')">c</button><button class="key" onclick="keyPress('v')">v</button><button class="key" onclick="keyPress('b')">b</button><button class="key" onclick="keyPress('n')">n</button><button class="key" onclick="keyPress('m')">m</button><button class="key wide" onclick="checkAnswer()">OK</button></div>
     </div>
   </div>
-</div>
 
-<div class="bottom-info" id="tokenFooter" style="display:none;">
+  <div id="tokenFooter" style="display:none;">
     <p id="message"></p>
-    <div class="token-labels">
-      <span>Coins Today: <span id="todayTokensDisplay">0</span>/300</span>
-      <span>Bank: <span id="totalTokensDisplay">0</span> 🪙</span>
+    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold;">
+      <span>Today: <span id="todayTokensDisplay">0</span>/300</span>
+      <span>Total: <span id="totalTokensDisplay">0</span> 🪙</span>
     </div>
     <div class="progress-container"><div id="progressBar"></div></div>
+  </div>
 </div>
 
 <script>
-// Logic remains identical to V4.8 for stability
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybDdl5ITewTLRj5GfHb_XGLvFqh4nVnzM6dM75Q9a8rqv8gVmze4ipKr4XERR81c1xgA/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6EpHAvwQrMluOEH1WbGmlRDgD515lnEsQZi2ChFhVyt_969Z_jsNRi6-kHW9wYryVTQ/exec';
 
-let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0 };
+let user = { name: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0 };
 let mode = "math", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [];
-let num1, num2, operator, correctAnswer, attempts = 0, penaltyApplied = false;
+let num1, num2, operator, correctAnswer, attempts = 0;
 let currentRevealedIndices = [], questionsSinceMistake = 0;
 let currentInput = "", activeBoxIndex = 1;
 
@@ -164,58 +150,47 @@ async function attemptLogin() {
     const name = document.getElementById("loginName").value.trim();
     const pin = document.getElementById("loginPin").value.trim();
     if(!name || !pin) return;
+    
+    document.getElementById("loadingOverlay").style.display = "flex";
+
     try {
         const res = await fetch(`${SCRIPT_URL}?action=login&name=${name}&pin=${pin}`);
         const data = await res.json();
-        if(data === "error") { document.getElementById("loginError").innerText = "Check your PIN! ❌"; }
-        else {
-            user = { name, pin, ...data, history: parseInt(data.history) || 0, math: parseInt(data.math) || 0, spell: parseInt(data.spell) || 0 };
+        if(data === "error") { 
+            document.getElementById("loadingOverlay").style.display = "none";
+            document.getElementById("loginError").innerText = "Wrong name or PIN!"; 
+        } else {
+            user = { name, ...data, history: parseInt(data.history) || 0 };
             document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("loadingOverlay").style.display = "none";
             document.getElementById("appContent").style.display = "flex";
             document.getElementById("keyboardArea").style.display = "flex";
-            document.getElementById("tokenFooter").style.display = "flex";
+            document.getElementById("tokenFooter").style.display = "block";
             await loadWords();
             updateScore();
             nextTask();
         }
-    } catch(e) { console.log(e); }
-}
-
-async function updatePinPrompt() {
-    const name = document.getElementById("loginName").value.trim();
-    const oldPin = document.getElementById("loginPin").value.trim();
-    if(!name || !oldPin) { alert("Enter Name and Current PIN first!"); return; }
-    const newPin = prompt("Enter new 4-digit PIN:");
-    if(newPin && newPin.length === 4) {
-        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ name, oldPin, newPin, action: "updatePin" }) });
-        const result = await res.text();
-        if(result === "success") { alert("PIN Updated! Please login again."); location.reload(); }
-        else { alert("Failed. Check Name/Current PIN."); }
+    } catch(e) { 
+        document.getElementById("loadingOverlay").style.display = "none";
+        alert("Server Error"); 
     }
 }
 
 async function loadWords() {
     const res = await fetch(`${SCRIPT_URL}?action=getWords`);
     spellingWords = await res.json();
-    spellQueue = [...spellingWords].sort(() => Math.random() - 0.5);
 }
 
 async function sync() { fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({...user, action: "sync"}) }); }
 
 function createConfetti() {
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 30; i++) {
         const c = document.createElement('div'); c.className = 'confetti';
         c.style.left = Math.random() * 100 + 'vw';
         c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
         c.style.animation = `fall ${Math.random() * 1.5 + 1}s linear forwards`;
-        document.body.appendChild(c); setTimeout(() => c.remove(), 2500);
+        document.body.appendChild(c); setTimeout(() => c.remove(), 2000);
     }
-}
-
-function triggerBomb() {
-    const b = document.getElementById("bomb");
-    b.style.display = "block"; b.className = "shake";
-    setTimeout(() => { b.style.display = "none"; b.className = ""; }, 800);
 }
 
 function toggleMode() {
@@ -226,7 +201,7 @@ function toggleMode() {
 }
 
 function nextTask() {
-    attempts = 0; penaltyApplied = false; currentRevealedIndices = []; currentInput = "";
+    attempts = 0; currentRevealedIndices = []; currentInput = "";
     document.getElementById("message").innerText = "";
     document.getElementById("visualAid").innerHTML = "";
     document.getElementById("numpad").style.display = (mode === "math") ? "block" : "none";
@@ -248,14 +223,13 @@ function keyPress(val) {
 
 function updateActiveBox() {
     const grid = document.getElementById("letterGrid");
-    Array.from(grid.children).forEach((box, i) => { box.classList.toggle("active", i === activeBoxIndex && i < currentWord.length - 1); });
+    Array.from(grid.children).forEach((box, i) => { box.style.borderColor = (i === activeBoxIndex && i < currentWord.length - 1) ? "#6c5ce7" : "#ddd"; });
 }
 
 function generateMath() {
     const qCount = user.math + 1;
-    if (qCount <= 3) { 
-        operator = Math.random() > 0.5 ? "+" : "-"; num1 = Math.floor(Math.random() * 10) + 10; num2 = Math.floor(Math.random() * 6) + 1;
-    } else if (qCount <= 7) { 
+    if (qCount <= 3) { operator = Math.random() > 0.5 ? "+" : "-"; num1 = Math.floor(Math.random() * 10) + 10; num2 = Math.floor(Math.random() * 6) + 1; }
+    else if (qCount <= 7) { 
         const ops = ["+", "-", "*"]; operator = ops[Math.floor(Math.random() * 3)];
         if (operator === "*") { num1 = Math.floor(Math.random() * 4) + 2; num2 = Math.floor(Math.random() * 4) + 2; }
         else { num1 = Math.floor(Math.random() * 15) + 15; num2 = Math.floor(Math.random() * 10) + 5; }
@@ -274,7 +248,7 @@ function generateSpelling() {
     else { if (spellQueue.length === 0) spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); currentWord = spellQueue.pop().toLowerCase(); questionsSinceMistake++; }
     const grid = document.getElementById("letterGrid"); grid.innerHTML = ""; activeBoxIndex = 1;
     for (let i = 0; i < currentWord.length; i++) {
-        const b = document.createElement("div"); b.className = "letter-box";
+        const b = document.createElement("div"); b.style.width="30px"; b.style.height="38px"; b.style.border="2px solid #ddd"; b.style.borderRadius="5px"; b.style.display="flex"; b.style.alignItems="center"; b.style.justifyContent="center"; b.style.fontWeight="bold";
         if (i === 0 || i === currentWord.length - 1) { b.innerText = currentWord[i]; b.style.background = "#f4f4f4"; }
         grid.appendChild(b);
     }
@@ -288,6 +262,7 @@ function checkAnswer() {
     if (mode === "math") val = currentInput;
     else { const grid = document.getElementById("letterGrid"); Array.from(grid.children).forEach(b => val += b.innerText); }
     if (!val) return;
+    
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
     const limitReached = (mode === "math" ? user.math >= 10 : user.spell >= 20);
 
@@ -295,19 +270,19 @@ function checkAnswer() {
         playCheer(); createConfetti();
         let r = 0; if (!limitReached && user.today < 300) { r = 10; if (mode === "math") user.math++; else user.spell++; }
         user.total += r; user.today += r; user.history++;
-        document.getElementById("message").style.color = "var(--success)"; document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`;
+        document.getElementById("message").style.color = "green"; document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`;
         sync(); updateScore(); setTimeout(nextTask, 1500);
     } else {
-        attempts++; playFart(); triggerBomb();
+        attempts++; playFart(); 
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; }
         else { 
-          const g = document.getElementById("letterGrid"); 
-          Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); 
-          activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); 
-          if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
+            const g = document.getElementById("letterGrid"); 
+            Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); 
+            activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); 
+            if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord);
         }
-        if (!penaltyApplied && !limitReached) { user.total = Math.max(0, user.total - 3); user.today = Math.max(0, user.today - 3); penaltyApplied = true; user.logs += `[${new Date().toLocaleTimeString()}] ${mode}: ${val} wrong.\n`; sync(); updateScore(); }
-        document.getElementById("message").style.color = "var(--error)"; document.getElementById("message").innerText = "-3 Tokens 💨";
+        if (!limitReached) { user.total = Math.max(0, user.total - 3); user.today = Math.max(0, user.today - 3); user.logs += `[${new Date().toLocaleTimeString()}] ${mode}: ${val} wrong.\n`; sync(); updateScore(); }
+        document.getElementById("message").style.color = "red"; document.getElementById("message").innerText = "-3 Tokens 💨";
         showHelp();
         if (attempts >= 5) { document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord}`; setTimeout(nextTask, 2500); }
     }
@@ -317,20 +292,35 @@ function showHelp() {
     const aid = document.getElementById("visualAid"); aid.innerHTML = "";
     if (mode === "math") {
         if (operator === "+") {
-            const g1 = document.createElement("div"); g1.className = "ten-frame-grid"; for(let i=0;i<num1;i++){const d=document.createElement("div");d.className="dot";g1.appendChild(d);} aid.appendChild(g1); aid.innerHTML += "+";
-            const g2 = document.createElement("div"); g2.className = "ten-frame-grid"; for(let i=0;i<num2;i++){const d=document.createElement("div");d.className="dot secondary";g2.appendChild(d);} aid.appendChild(g2);
+            const g1 = document.createElement("div"); g1.className = "ten-frame-grid";
+            for(let i=0;i<num1;i++){const d=document.createElement("div");d.className="dot";g1.appendChild(d);}
+            aid.appendChild(g1);
+            const plus = document.createElement("div"); plus.innerText = "+"; aid.appendChild(plus);
+            const g2 = document.createElement("div"); g2.className = "ten-frame-grid";
+            for(let i=0;i<num2;i++){const d=document.createElement("div");d.className="dot secondary";g2.appendChild(d);}
+            aid.appendChild(g2);
         } else if (operator === "-") {
-            const g1 = document.createElement("div"); g1.className = "ten-frame-grid"; for(let i=0;i<num1;i++){const d=document.createElement("div");d.className=(i<num2)?"dot dim":"dot";g1.appendChild(d);} aid.appendChild(g1);
+            const g1 = document.createElement("div"); g1.className = "ten-frame-grid";
+            for(let i=0;i<num1;i++){const d=document.createElement("div");d.className=(i<num2)?"dot dim":"dot";g1.appendChild(d);}
+            aid.appendChild(g1);
         } else if (operator === "*") {
-            for(let r=0; r<num1; r++) { const row = document.createElement("div"); row.style.display="flex"; for(let c=0; c<num2; c++) { const d=document.createElement("div"); d.className="dot"; row.appendChild(d); } aid.appendChild(row); }
+            for(let r=0; r<num1; r++) {
+                const row = document.createElement("div"); row.style.display="flex";
+                for(let c=0; c<num2; c++) { const d=document.createElement("div"); d.className="dot"; d.style.margin="1px"; row.appendChild(d); }
+                aid.appendChild(row);
+            }
         } else if (operator === "/") {
-            for(let g=0; g<num2; g++) { const grp = document.createElement("div"); grp.className = "division-group"; for(let i=0; i<correctAnswer; i++) { const d = document.createElement("div"); d.className = "dot"; grp.appendChild(d); } aid.appendChild(grp); }
+            for(let g=0; g<num2; g++) {
+                const grp = document.createElement("div"); grp.className = "division-group";
+                for(let i=0; i<correctAnswer; i++) { const d = document.createElement("div"); d.className = "dot"; d.style.margin="1px"; grp.appendChild(d); }
+                aid.appendChild(grp);
+            }
         }
     } else {
         let availableIndices = []; for(let i=1; i<currentWord.length-1; i++) { if(!currentRevealedIndices.includes(i)) availableIndices.push(i); }
         if(availableIndices.length > 0) { let randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)]; currentRevealedIndices.push(randomIndex); }
         let hint = ""; for(let i=0; i<currentWord.length; i++) { if (i === 0 || i === currentWord.length - 1 || currentRevealedIndices.includes(i)) { hint += currentWord[i] + " "; } else { hint += "_ "; } }
-        aid.innerHTML = `<p style='font-size:32px; color:var(--primary); font-weight:900; margin:0; letter-spacing:4px;'>${hint.toLowerCase()}</p>`;
+        aid.innerHTML = `<p style='font-size:24px; color:#6c5ce7; font-weight:bold; margin:0;'>${hint.toLowerCase()}</p>`;
     }
 }
 
