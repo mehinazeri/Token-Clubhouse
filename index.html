@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Token Clubhouse 4.1</title>
+  <title>Token Clubhouse 4.2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
@@ -91,8 +91,9 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4WeR4pIbtdlmHaD3tRgDtJa1ILasfn2M3pcgJ89Z0JPXpZCrMj7OD331k26pRj8-Eag/exec';
 
 let user = { name: "", total: 0, math: 0, spell: 0, today: 0, logs: "" };
-let mode = "math", spellingWords = [], currentWord = "", spellQueue = [];
+let mode = "math", spellingWords = [], currentWord = "", spellQueue = [], mistakeQueue = [];
 let num1, num2, operator, correctAnswer, attempts = 0, penaltyApplied = false;
+let currentRevealedIndices = [];
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -164,7 +165,7 @@ function toggleMode() {
 }
 
 function nextTask() {
-    attempts = 0; penaltyApplied = false;
+    attempts = 0; penaltyApplied = false; currentRevealedIndices = [];
     document.getElementById("message").innerText = "";
     document.getElementById("visualAid").innerHTML = "";
     if (mode === "math") generateMath(); else generateSpelling();
@@ -181,12 +182,12 @@ function generateMath() {
         operator = ops[Math.floor(Math.random() * 3)];
         num1 = Math.floor(Math.random() * 10) + 10;
         num2 = Math.floor(Math.random() * 10) + 5;
-        if (operator === "*") { num1 = Math.floor(Math.random()*5)+2; num2 = Math.floor(Math.random()*4)+2; }
+        if (operator === "*") { num1 = Math.floor(Math.random()*5)+2; num2 = Math.floor(Math.random()*2)+2; }
     } else { 
         const ops = ["*", "/"];
         operator = ops[Math.floor(Math.random() * 2)];
-        num2 = Math.floor(Math.random() * 4) + 3;
-        let ans = Math.floor(Math.random() * 5) + 3;
+        num2 = Math.floor(Math.random() * 3) + 2;
+        let ans = Math.floor(Math.random() * 3) + 2;
         num1 = num2 * ans;
     }
     if (operator === "-" && num2 > num1) [num1, num2] = [num2, num1];
@@ -196,8 +197,14 @@ function generateMath() {
 }
 
 function generateSpelling() {
-    if (spellQueue.length === 0) spellQueue = [...spellingWords].sort(() => Math.random() - 0.5);
-    currentWord = spellQueue.pop();
+    // If mistakeQueue has items, 50% chance to pick from there to repeat errors
+    if (mistakeQueue.length > 0 && Math.random() > 0.5) {
+        currentWord = mistakeQueue.shift();
+    } else {
+        if (spellQueue.length === 0) spellQueue = [...spellingWords].sort(() => Math.random() - 0.5);
+        currentWord = spellQueue.pop().toLowerCase();
+    }
+    
     const grid = document.getElementById("letterGrid");
     grid.innerHTML = "";
     for (let i = 0; i < currentWord.length; i++) {
@@ -219,14 +226,16 @@ function checkAnswer() {
     if (mode === "math") val = document.getElementById("mathInput").value;
     else document.querySelectorAll(".letter-box").forEach(b => val += b.value);
     if (!val) return;
+    
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
+    const limitReached = (mode === "math" ? user.math >= 10 : user.spell >= 20);
 
     if (isCorrect) {
         playCheer(); createConfetti();
         let r = 0;
-        if (user.today < 300) {
-            if (mode === "math" && user.math < 10) { r = 10; user.math++; }
-            if (mode === "spelling" && user.spell < 20) { r = 15; user.spell++; }
+        if (!limitReached && user.today < 300) {
+            if (mode === "math") { r = 10; user.math++; }
+            if (mode === "spelling") { r = 10; user.spell++; }
         }
         user.total += r; user.today += r;
         document.getElementById("message").style.color = "green";
@@ -234,8 +243,12 @@ function checkAnswer() {
         sync(); updateScore(); setTimeout(nextTask, 1500);
     } else {
         attempts++; playFart();
-        if (mode === "spelling") setTimeout(sayWord, 600);
-        if (!penaltyApplied) {
+        if (mode === "spelling") {
+            setTimeout(sayWord, 600);
+            if (!mistakeQueue.includes(currentWord)) mistakeQueue.push(currentWord);
+        }
+        
+        if (!penaltyApplied && !limitReached) {
             user.total = Math.max(0, user.total - 3); user.today = Math.max(0, user.today - 3);
             penaltyApplied = true;
             user.logs += `[${new Date().toLocaleTimeString()}] ${mode}: ${val} wrong.\n`;
@@ -244,8 +257,8 @@ function checkAnswer() {
             sync(); updateScore();
         }
         showHelp();
-        if (attempts >= 5) {
-            document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord.toUpperCase()}`;
+        if (attempts >= 6) {
+            document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord}`;
             setTimeout(nextTask, 2500);
         }
     }
@@ -279,13 +292,25 @@ function showHelp() {
             }
         }
     } else {
-        let revealedCount = attempts; 
+        // Haphazard pattern reveal
+        let availableIndices = [];
+        for(let i=1; i<currentWord.length-1; i++) {
+            if(!currentRevealedIndices.includes(i)) availableIndices.push(i);
+        }
+        if(availableIndices.length > 0) {
+            let randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+            currentRevealedIndices.push(randomIndex);
+        }
+
         let hint = "";
         for(let i=0; i<currentWord.length; i++) {
-            if (i < revealedCount || i === currentWord.length - 1) hint += currentWord[i].toUpperCase() + " ";
-            else hint += "_ ";
+            if (i === 0 || i === currentWord.length - 1 || currentRevealedIndices.includes(i)) {
+                hint += currentWord[i] + " ";
+            } else {
+                hint += "_ ";
+            }
         }
-        aid.innerHTML = `<p style='font-size:32px; color:#2196F3; letter-spacing:4px; font-weight:bold; margin:0;'>${hint}</p>`;
+        aid.innerHTML = `<p style='font-size:32px; color:#2196F3; letter-spacing:4px; font-weight:bold; margin:0;'>${hint.toLowerCase()}</p>`;
     }
 }
 
@@ -300,10 +325,13 @@ function updateScore() {
 function resetPrompt() {
     let b = Math.floor(Math.random()*4)+11;
     if (prompt(`Admin: ${b}x${b}?`) == b*b) {
-        let c = prompt("1: Reset Today\n2: Reset Total\n3: Errors");
+        let c = prompt("1: Reset Today\n2: Reset Total\n3: Errors (Will clear after reading)");
         if(c=="1") { user.math=0; user.spell=0; user.today=0; }
         else if(c=="2") { user.total=0; user.math=0; user.spell=0; user.today=0; }
-        else if(c=="3") alert(user.logs || "No errors logged yet.");
+        else if(c=="3") {
+            alert(user.logs || "No errors logged yet.");
+            user.logs = ""; // Clear log after viewing
+        }
         sync(); updateScore();
     }
 }
