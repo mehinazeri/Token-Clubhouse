@@ -1,71 +1,63 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin's Clubhouse 5.1</title>
+  <title>Melorin Clubhouse 5.2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
-    :root {
-      --primary: #6c5ce7;
-      --bg: #f0f2f5;
-      --card: #ffffff;
-      --accent: #ede7f6;
-    }
-
+    :root { --primary: #6c5ce7; --bg: #f0f2f5; --card: #ffffff; --accent: #ede7f6; }
     body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; touch-action: manipulation; }
     
-    /* 85% HEIGHT CONTAINER */
-    #mainWrapper { width: 95%; max-width: 440px; height: 85vh; display: flex; flex-direction: column; position: relative; }
+    #mainWrapper { width: 95%; max-width: 440px; height: 85vh; display: flex; flex-direction: column; position: relative; background: var(--card); border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
 
-    /* LOADING OVERLAY */
-    #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; border-radius: 20px; }
-    .loading-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid var(--primary); font-weight: bold; color: var(--primary); }
+    #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
+    .loading-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid var(--primary); font-weight: bold; color: var(--primary); font-size: 18px; }
 
-    /* LOGIN SCREEN */
-    #loginScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2100; color: white; border-radius: 20px; }
-    #loginScreen input { margin: 8px; padding: 12px; border-radius: 10px; border: none; font-size: 16px; width: 200px; text-align: center; }
-    #loginScreen button { background: #4CAF50; color: white; padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    #loginScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2500; color: white; }
+    #loginScreen input { margin: 8px; padding: 15px; border-radius: 12px; border: none; font-size: 18px; width: 220px; text-align: center; }
+    .login-btns { display: flex; gap: 10px; margin-top: 15px; }
+    #loginScreen button { background: #4CAF50; color: white; padding: 14px 28px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; }
+    #loginScreen .pin-btn { background: #ff9800; }
 
-    /* TOP APP SECTION (50%) */
-    .top-section { background: var(--card); padding: 10px; border-radius: 20px 20px 0 0; height: 50%; display: flex; flex-direction: column; box-sizing: border-box; border-bottom: 2px solid #eee; }
-    .top-stats { display: flex; justify-content: space-around; margin-bottom: 5px; }
-    .stat-pill { background: var(--accent); color: var(--primary); padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+    .top-section { padding: 15px; height: 50%; display: flex; flex-direction: column; box-sizing: border-box; }
+    .top-stats { display: flex; justify-content: space-around; margin-bottom: 10px; }
+    .stat-pill { background: var(--accent); color: var(--primary); padding: 5px 12px; border-radius: 12px; font-size: 13px; font-weight: bold; }
     
-    .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-    .question { font-size: 32px; font-weight: bold; margin: 5px 0; color: #333; }
-    #displayArea { font-size: 26px; font-weight: bold; color: #4CAF50; min-height: 35px; letter-spacing: 2px; }
+    .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .question { font-size: 42px; font-weight: bold; margin: 10px 0; color: #333; width: 100%; }
+    #displayArea { font-size: 32px; font-weight: bold; color: #4CAF50; min-height: 40px; letter-spacing: 4px; border-bottom: 3px dashed #ccc; padding: 0 10px; }
 
-    /* KEYBOARD SECTION (35%) */
-    #keyboardArea { height: 35%; background: #e0e4eb; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center; border-radius: 0 0 20px 20px; box-sizing: border-box; }
-    .kb-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 5px; }
-    .key { background: #fff; border-radius: 6px; padding: 12px 0; font-size: 18px; font-weight: bold; width: 38px; border: none; box-shadow: 0 3px 0 #abb1ba; }
+    .letter-grid { display: flex; justify-content: center; gap: 5px; margin: 10px 0; }
+    .letter-box { width: 35px; height: 45px; font-size: 24px; text-align: center; border: 2px solid #ddd; border-radius: 8px; text-transform: lowercase; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+    .letter-box.active { border-color: var(--primary); background: #f3e5f5; }
+
+    #helpArea { background: #fffde7; border-radius: 15px; border: 1px dashed #fbc02d; padding: 10px; min-height: 80px; display: flex; align-items: center; justify-content: center; position: relative; }
+    
+    #keyboardArea { height: 35%; background: #f0f2f5; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center; border-top: 2px solid #eee; }
+    .kb-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 8px; }
+    .key { background: #fff; border-radius: 10px; padding: 15px 0; font-size: 20px; font-weight: bold; width: 42px; border: none; box-shadow: 0 4px 0 #ccc; }
     .key:active { transform: translateY(2px); box-shadow: none; }
-    .key.wide { width: 70px; background: #4CAF50; color: white; }
-    .key.back { width: 70px; background: #ff5252; color: white; }
-    #numpad .key { width: 65px; padding: 15px 0; font-size: 22px; }
+    .key.wide { width: 80px; background: #4CAF50; color: white; box-shadow: 0 4px 0 #2e7d32; }
+    .key.back { width: 80px; background: #ff5252; color: white; box-shadow: 0 4px 0 #c62828; }
+    #numpad .key { width: 75px; padding: 20px 0; font-size: 24px; }
 
-    /* HELPER AREA - NOW PART OF TOP SECTION */
-    #helpArea { background: #fffde7; border-radius: 10px; border: 1px dashed #fbc02d; margin-top: 5px; padding: 5px; min-height: 60px; overflow-y: auto; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-    
-    /* MATH DOTS - HORIZONTAL GRID */
-    .ten-frame-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin: 2px auto; }
+    .bottom-info { height: 15%; padding: 10px 20px; display: flex; flex-direction: column; justify-content: center; background: white; }
+    .progress-container { width: 100%; height: 16px; background: #eee; border-radius: 8px; overflow: hidden; margin-top: 5px; border: 1px solid #ddd; }
+    #progressBar { height: 100%; width: 0%; background: #4CAF50; transition: width 0.5s; }
+    #message { font-weight: bold; height: 25px; font-size: 18px; margin-bottom: 5px; }
+
+    .ten-frame-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
     .dot { width: 12px; height: 12px; border-radius: 50%; background: #2196F3; }
     .dot.secondary { background: #f44336; }
     .dot.dim { background: #e0e0e0; border: 1px solid #ccc; }
-    .division-group { border: 2px solid #4CAF50; padding: 4px; border-radius: 8px; display: inline-block; margin: 2px; background: white; }
-
-    /* FOOTER (Progress outside the 85% to stay consistent) */
-    #tokenFooter { width: 100%; max-width: 440px; padding: 5px; box-sizing: border-box; }
-    .progress-container { width: 100%; height: 12px; background: #ddd; border-radius: 6px; overflow: hidden; margin-top: 5px; }
-    #progressBar { height: 100%; width: 0%; background: #4CAF50; transition: width 0.5s; }
-    #message { font-weight: bold; height: 20px; font-size: 16px; margin: 2px 0; }
-    .confetti { position: fixed; width: 8px; height: 8px; z-index: 3000; pointer-events: none; }
+    .division-group { border: 2px solid #4CAF50; padding: 5px; border-radius: 8px; display: inline-block; margin: 4px; background: white; }
+    .confetti { position: fixed; width: 8px; height: 8px; z-index: 4000; pointer-events: none; }
     @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } }
   </style>
 </head>
 <body>
 
 <div id="mainWrapper">
-  <div id="loadingOverlay" style="display:none;">
+  <div id="loadingOverlay">
     <div class="loading-box">Connecting to your profile...</div>
   </div>
 
@@ -73,16 +65,19 @@
     <h1>Clubhouse 🪙</h1>
     <input type="text" id="loginName" placeholder="Name">
     <input type="password" id="loginPin" placeholder="PIN" maxlength="4">
-    <button onclick="attemptLogin()">Let's Play!</button>
-    <p id="loginError" style="color:#ffcdd2; font-size:12px; margin-top:10px;"></p>
+    <div class="login-btns">
+      <button onclick="attemptLogin()">Enter</button>
+      <button class="pin-btn" onclick="updatePinPrompt()">New PIN</button>
+    </div>
+    <p id="loginError" style="font-size:12px; margin-top:10px;"></p>
   </div>
 
   <div class="top-section" id="appContent" style="display:none;">
-    <button onclick="resetPrompt()" style="position:absolute; top:5px; left:5px; opacity:0.1; border:none; background:none;">⚙️</button>
+    <button onclick="resetPrompt()" style="position:absolute; top:5px; left:5px; opacity:0.1; border:none; background:none; cursor:pointer;">⚙️</button>
     <div class="top-stats">
       <div class="stat-pill">Math: <span id="mathCountDisplay">0</span>/10</div>
       <div class="stat-pill">Spell: <span id="spellCountDisplay">0</span>/20</div>
-      <button id="modeBtn" onclick="toggleMode()" style="background:var(--primary); color:white; border:none; border-radius:10px; font-size:10px; padding:4px 8px;">Switch</button>
+      <button onclick="toggleMode()" style="background:var(--primary); color:white; border:none; border-radius:10px; font-size:10px; padding:5px 10px; cursor:pointer;">Switch Game</button>
     </div>
     
     <div class="question-area">
@@ -91,14 +86,12 @@
         <div id="displayArea">?</div>
       </div>
       <div id="spellingArea" style="display:none;">
-        <button onclick="sayWord()" style="background:#2196F3; border:none; border-radius:50%; width:40px; height:40px; color:white; margin-bottom:5px;">🔊</button>
-        <div id="letterGrid" style="display:flex; justify-content:center; gap:5px;"></div>
+        <button onclick="sayWord()" style="background:#2196F3; border:none; border-radius:50%; width:50px; height:50px; color:white; margin-bottom:10px; cursor:pointer;">🔊</button>
+        <div id="letterGrid"></div>
       </div>
     </div>
 
-    <div id="helpArea">
-      <div id="visualAid"></div>
-    </div>
+    <div id="helpArea"><div id="visualAid"></div></div>
   </div>
 
   <div id="keyboardArea" style="display:none;">
@@ -123,9 +116,9 @@
     </div>
   </div>
 
-  <div id="tokenFooter" style="display:none;">
+  <div class="bottom-info" id="tokenFooter" style="display:none;">
     <p id="message"></p>
-    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold;">
+    <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:bold;">
       <span>Today: <span id="todayTokensDisplay">0</span>/300</span>
       <span>Total: <span id="totalTokensDisplay">0</span> 🪙</span>
     </div>
@@ -134,13 +127,11 @@
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6EpHAvwQrMluOEH1WbGmlRDgD515lnEsQZi2ChFhVyt_969Z_jsNRi6-kHW9wYryVTQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0QTXan03LhYoQXXCtjIC7pqcu9X7ZsWABKielLhTLgHSwiFSggLK544J9oIFJ4JV8iA/exec';
 
-let user = { name: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0 };
-let mode = "math", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [];
-let num1, num2, operator, correctAnswer, attempts = 0;
-let currentRevealedIndices = [], questionsSinceMistake = 0;
-let currentInput = "", activeBoxIndex = 1;
+let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0, lastDate: "" };
+let mode = "math", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [], questionsSinceMistake = 0;
+let num1, num2, operator, correctAnswer, attempts = 0, currentInput = "", activeBoxIndex = 1, currentRevealedIndices = [];
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playCheer() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.frequency.setValueAtTime(500, 0); osc.frequency.exponentialRampToValueAtTime(1200, 0.1); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.2); }
@@ -150,9 +141,7 @@ async function attemptLogin() {
     const name = document.getElementById("loginName").value.trim();
     const pin = document.getElementById("loginPin").value.trim();
     if(!name || !pin) return;
-    
     document.getElementById("loadingOverlay").style.display = "flex";
-
     try {
         const res = await fetch(`${SCRIPT_URL}?action=login&name=${name}&pin=${pin}`);
         const data = await res.json();
@@ -160,50 +149,59 @@ async function attemptLogin() {
             document.getElementById("loadingOverlay").style.display = "none";
             document.getElementById("loginError").innerText = "Wrong name or PIN!"; 
         } else {
-            user = { name, ...data, history: parseInt(data.history) || 0 };
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("loadingOverlay").style.display = "none";
-            document.getElementById("appContent").style.display = "flex";
-            document.getElementById("keyboardArea").style.display = "flex";
-            document.getElementById("tokenFooter").style.display = "block";
-            await loadWords();
-            updateScore();
-            nextTask();
+            const today = new Date().toLocaleDateString();
+            user = { name, pin, ...data, history: parseInt(data.history) || 0 };
+            // MIDNIGHT RESET LOGIC
+            if(user.lastDate !== today) { user.math = 0; user.spell = 0; user.today = 0; user.lastDate = today; }
+            setTimeout(() => {
+                document.getElementById("loginScreen").style.display = "none";
+                document.getElementById("loadingOverlay").style.display = "none";
+                document.getElementById("appContent").style.display = "flex";
+                document.getElementById("keyboardArea").style.display = "flex";
+                document.getElementById("tokenFooter").style.display = "flex";
+                loadWords(); updateScore(); nextTask();
+            }, 1500);
         }
-    } catch(e) { 
-        document.getElementById("loadingOverlay").style.display = "none";
-        alert("Server Error"); 
+    } catch(e) { document.getElementById("loadingOverlay").style.display = "none"; alert("Connection Error"); }
+}
+
+async function updatePinPrompt() {
+    const name = document.getElementById("loginName").value.trim();
+    const oldPin = document.getElementById("loginPin").value.trim();
+    if(!name || !oldPin) return alert("Enter Name and Current PIN");
+    const newPin = prompt("Enter new 4-digit PIN:");
+    if(newPin && newPin.length === 4) {
+        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ name, oldPin, newPin, action: "updatePin" }) });
+        const result = await res.text();
+        if(result === "success") { alert("PIN Updated! Restarting..."); location.reload(); }
     }
 }
 
 async function loadWords() {
     const res = await fetch(`${SCRIPT_URL}?action=getWords`);
     spellingWords = await res.json();
+    spellQueue = [...spellingWords].sort(() => Math.random() - 0.5);
 }
 
 async function sync() { fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({...user, action: "sync"}) }); }
 
 function createConfetti() {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 40; i++) {
         const c = document.createElement('div'); c.className = 'confetti';
         c.style.left = Math.random() * 100 + 'vw';
         c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
         c.style.animation = `fall ${Math.random() * 1.5 + 1}s linear forwards`;
-        document.body.appendChild(c); setTimeout(() => c.remove(), 2000);
+        document.body.appendChild(c); setTimeout(() => c.remove(), 2500);
     }
 }
 
-function toggleMode() {
-    mode = (mode === "math") ? "spelling" : "math";
-    document.getElementById("mathArea").style.display = (mode === "math") ? "block" : "none";
-    document.getElementById("spellingArea").style.display = (mode === "spelling") ? "block" : "none";
-    nextTask();
-}
+function toggleMode() { mode = (mode === "math") ? "spelling" : "math"; nextTask(); }
 
 function nextTask() {
     attempts = 0; currentRevealedIndices = []; currentInput = "";
-    document.getElementById("message").innerText = "";
-    document.getElementById("visualAid").innerHTML = "";
+    document.getElementById("message").innerText = ""; document.getElementById("visualAid").innerHTML = "";
+    document.getElementById("mathArea").style.display = (mode === "math") ? "block" : "none";
+    document.getElementById("spellingArea").style.display = (mode === "spelling") ? "block" : "none";
     document.getElementById("numpad").style.display = (mode === "math") ? "block" : "none";
     document.getElementById("spellpad").style.display = (mode === "spelling") ? "block" : "none";
     if (mode === "math") generateMath(); else generateSpelling();
@@ -248,7 +246,7 @@ function generateSpelling() {
     else { if (spellQueue.length === 0) spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); currentWord = spellQueue.pop().toLowerCase(); questionsSinceMistake++; }
     const grid = document.getElementById("letterGrid"); grid.innerHTML = ""; activeBoxIndex = 1;
     for (let i = 0; i < currentWord.length; i++) {
-        const b = document.createElement("div"); b.style.width="30px"; b.style.height="38px"; b.style.border="2px solid #ddd"; b.style.borderRadius="5px"; b.style.display="flex"; b.style.alignItems="center"; b.style.justifyContent="center"; b.style.fontWeight="bold";
+        const b = document.createElement("div"); b.className = "letter-box";
         if (i === 0 || i === currentWord.length - 1) { b.innerText = currentWord[i]; b.style.background = "#f4f4f4"; }
         grid.appendChild(b);
     }
@@ -261,7 +259,7 @@ function checkAnswer() {
     let val = "";
     if (mode === "math") val = currentInput;
     else { const grid = document.getElementById("letterGrid"); Array.from(grid.children).forEach(b => val += b.innerText); }
-    if (!val) return;
+    if (!val) return; // Prevent skipping empty answers
     
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
     const limitReached = (mode === "math" ? user.math >= 10 : user.spell >= 20);
@@ -276,12 +274,15 @@ function checkAnswer() {
         attempts++; playFart(); 
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; }
         else { 
-            const g = document.getElementById("letterGrid"); 
-            Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); 
-            activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); 
-            if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord);
+            const g = document.getElementById("letterGrid"); Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); 
+            activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord);
         }
-        if (!limitReached) { user.total = Math.max(0, user.total - 3); user.today = Math.max(0, user.today - 3); user.logs += `[${new Date().toLocaleTimeString()}] ${mode}: ${val} wrong.\n`; sync(); updateScore(); }
+        if (!limitReached) { 
+            // Penalize only from Today's coins
+            user.today = Math.max(0, user.today - 3); 
+            user.logs += `[${new Date().toLocaleTimeString()}] ${mode}: ${val} wrong.\n`; 
+            sync(); updateScore(); 
+        }
         document.getElementById("message").style.color = "red"; document.getElementById("message").innerText = "-3 Tokens 💨";
         showHelp();
         if (attempts >= 5) { document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord}`; setTimeout(nextTask, 2500); }
@@ -292,35 +293,21 @@ function showHelp() {
     const aid = document.getElementById("visualAid"); aid.innerHTML = "";
     if (mode === "math") {
         if (operator === "+") {
-            const g1 = document.createElement("div"); g1.className = "ten-frame-grid";
-            for(let i=0;i<num1;i++){const d=document.createElement("div");d.className="dot";g1.appendChild(d);}
-            aid.appendChild(g1);
+            const g1 = document.createElement("div"); g1.className = "ten-frame-grid"; for(let i=0;i<num1;i++){const d=document.createElement("div");d.className="dot";g1.appendChild(d);} aid.appendChild(g1);
             const plus = document.createElement("div"); plus.innerText = "+"; aid.appendChild(plus);
-            const g2 = document.createElement("div"); g2.className = "ten-frame-grid";
-            for(let i=0;i<num2;i++){const d=document.createElement("div");d.className="dot secondary";g2.appendChild(d);}
-            aid.appendChild(g2);
+            const g2 = document.createElement("div"); g2.className = "ten-frame-grid"; for(let i=0;i<num2;i++){const d=document.createElement("div");d.className="dot secondary";g2.appendChild(d);} aid.appendChild(g2);
         } else if (operator === "-") {
-            const g1 = document.createElement("div"); g1.className = "ten-frame-grid";
-            for(let i=0;i<num1;i++){const d=document.createElement("div");d.className=(i<num2)?"dot dim":"dot";g1.appendChild(d);}
-            aid.appendChild(g1);
+            const g1 = document.createElement("div"); g1.className = "ten-frame-grid"; for(let i=0;i<num1;i++){const d=document.createElement("div");d.className=(i<num2)?"dot dim":"dot";g1.appendChild(d);} aid.appendChild(g1);
         } else if (operator === "*") {
-            for(let r=0; r<num1; r++) {
-                const row = document.createElement("div"); row.style.display="flex";
-                for(let c=0; c<num2; c++) { const d=document.createElement("div"); d.className="dot"; d.style.margin="1px"; row.appendChild(d); }
-                aid.appendChild(row);
-            }
+            for(let r=0; r<num1; r++) { const row = document.createElement("div"); row.style.display="flex"; for(let c=0; c<num2; c++) { const d=document.createElement("div"); d.className="dot"; d.style.margin="1px"; row.appendChild(d); } aid.appendChild(row); }
         } else if (operator === "/") {
-            for(let g=0; g<num2; g++) {
-                const grp = document.createElement("div"); grp.className = "division-group";
-                for(let i=0; i<correctAnswer; i++) { const d = document.createElement("div"); d.className = "dot"; d.style.margin="1px"; grp.appendChild(d); }
-                aid.appendChild(grp);
-            }
+            for(let g=0; g<num2; g++) { const grp = document.createElement("div"); grp.className = "division-group"; for(let i=0; i<correctAnswer; i++) { const d = document.createElement("div"); d.className = "dot"; d.style.margin="1px"; grp.appendChild(d); } aid.appendChild(grp); }
         }
     } else {
         let availableIndices = []; for(let i=1; i<currentWord.length-1; i++) { if(!currentRevealedIndices.includes(i)) availableIndices.push(i); }
         if(availableIndices.length > 0) { let randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)]; currentRevealedIndices.push(randomIndex); }
         let hint = ""; for(let i=0; i<currentWord.length; i++) { if (i === 0 || i === currentWord.length - 1 || currentRevealedIndices.includes(i)) { hint += currentWord[i] + " "; } else { hint += "_ "; } }
-        aid.innerHTML = `<p style='font-size:24px; color:#6c5ce7; font-weight:bold; margin:0;'>${hint.toLowerCase()}</p>`;
+        aid.innerHTML = `<p style='font-size:32px; color:#6c5ce7; font-weight:bold; margin:0; letter-spacing:4px;'>${hint.toLowerCase()}</p>`;
     }
 }
 
