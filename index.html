@@ -1,53 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Token Clubhouse 4.6</title>
+  <title>Token Clubhouse 4.7.1</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; touch-action: manipulation; }
     
     #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #9c27b0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: white; }
-    #loginScreen input { margin: 8px; padding: 12px; border-radius: 10px; border: none; font-size: 16px; width: 200px; text-align: center; }
+    #loginScreen input { margin: 8px; padding: 12px; border-radius: 10px; border: none; font-size: 16px; width: 200px; text-align: center; outline: none; }
     .login-btns { display: flex; gap: 10px; margin-top: 10px; }
     #loginScreen button { background: #4CAF50; color: white; padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
     #loginScreen .pin-btn { background: #ff9800; }
 
-    /* LAYOUT: 50% APP */
+    /* LAYOUT: 50% APP SECTION */
     .box { background: white; padding: 10px; width: 100%; max-width: 440px; border-radius: 0 0 20px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; height: 50vh; display: flex; flex-direction: column; margin: 0 auto; box-sizing: border-box; }
     
-    .top-stats { display: flex; justify-content: space-around; margin-bottom: 5px; }
-    .stat-pill { background: #ede7f6; color: #512da8; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; }
-    
-    #modeBtn { background: #9c27b0; font-size: 10px; padding: 4px 10px; border-radius: 10px; color: white; border: none; align-self: center; cursor: pointer; }
-    .question { font-size: 32px; font-weight: bold; margin: 5px 0; color: #333; height: 40px; }
-    #displayArea { font-size: 26px; font-weight: bold; color: #4CAF50; min-height: 35px; letter-spacing: 2px; }
+    .top-stats { display: flex; justify-content: space-around; margin-bottom: 5px; align-items: center;}
+    .stat-pill { background: #ede7f6; color: #512da8; padding: 4px 12px; border-radius: 10px; font-size: 13px; font-weight: bold; border: 1px solid #d1c4e9; }
+    #modeBtn { background: #9c27b0; font-size: 11px; padding: 5px 12px; border-radius: 12px; color: white; border: none; cursor: pointer; }
 
-    .letter-grid { display: flex; justify-content: center; gap: 3px; margin: 5px 0; flex-wrap: wrap; }
-    .letter-box { width: 28px; height: 35px; font-size: 18px; text-align: center; border: 2px solid #ddd; border-radius: 5px; text-transform: lowercase; font-weight: bold; display: flex; align-items: center; justify-content: center; background: #fff; }
-    .letter-box.active { border-color: #9c27b0; background: #f3e5f5; }
+    .question { font-size: 34px; font-weight: bold; margin: 5px 0; color: #333; height: 45px; }
+    #displayArea { font-size: 28px; font-weight: bold; color: #4CAF50; min-height: 35px; letter-spacing: 3px; }
 
-    #helpArea { margin: 5px 0; padding: 8px; background: #fffde7; border-radius: 10px; border: 1px dashed #fbc02d; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .letter-grid { display: flex; justify-content: center; gap: 4px; margin: 5px 0; }
+    .letter-box { width: 32px; height: 42px; font-size: 22px; text-align: center; border: 2px solid #ddd; border-radius: 6px; text-transform: lowercase; font-weight: bold; display: flex; align-items: center; justify-content: center; background: #fff; }
+    .letter-box.active { border-color: #9c27b0; background: #f3e5f5; box-shadow: 0 0 5px #9c27b0; }
+
+    #helpArea { margin: 5px 0; padding: 8px; background: #fffde7; border-radius: 12px; border: 1px dashed #fbc02d; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     
-    /* LAYOUT: 35% KEYBOARD */
-    #keyboardArea { height: 35vh; background: #d2d6de; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center; border-top: 2px solid #abb1ba; box-sizing: border-box; }
-    .kb-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 6px; }
-    .key { background: #fff; border-radius: 6px; padding: 15px 0; font-size: 20px; font-weight: bold; width: 40px; cursor: pointer; border: none; box-shadow: 0 3px 0 #abb1ba; }
+    /* LAYOUT: 35% KEYBOARD SECTION */
+    #keyboardArea { height: 35vh; background: #d2d6de; padding: 10px 5px; display: flex; flex-direction: column; justify-content: center; border-top: 2px solid #abb1ba; }
+    .kb-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 8px; }
+    .key { background: #fff; border-radius: 8px; padding: 18px 0; font-size: 22px; font-weight: bold; width: 45px; cursor: pointer; border: none; box-shadow: 0 4px 0 #abb1ba; }
     .key:active { background: #e0e0e0; transform: translateY(2px); box-shadow: none; }
-    .key.wide { width: 70px; background: #4CAF50; color: white; }
-    .key.back { width: 70px; background: #ff5252; color: white; }
-    #numpad .key { width: 60px; padding: 18px 0; font-size: 24px; }
+    .key.wide { width: 85px; background: #4CAF50; color: white; box-shadow: 0 4px 0 #2e7d32; }
+    .key.back { width: 85px; background: #ff5252; color: white; box-shadow: 0 4px 0 #c62828; }
+    #numpad .key { width: 75px; padding: 22px 0; font-size: 26px; }
 
-    .bottom-info { height: 15vh; background: white; padding: 5px 10px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
-    .progress-container { width: 100%; height: 12px; background: #e0e0e0; border-radius: 6px; margin: 4px 0; overflow: hidden; }
+    /* LAYOUT: 15% TOKEN FOOTER */
+    .bottom-info { height: 15vh; background: white; padding: 5px 15px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+    .progress-container { width: 100%; height: 14px; background: #e0e0e0; border-radius: 7px; margin: 5px 0; overflow: hidden; border: 1px solid #ccc; }
     #progressBar { height: 100%; width: 0%; background: #4CAF50; transition: width 0.5s; }
-    .token-labels { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; }
-    #message { font-weight: bold; font-size: 16px; height: 22px; margin-bottom: 2px; }
+    .token-labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; }
+    #message { font-weight: bold; font-size: 20px; height: 26px; margin-bottom: 5px; }
     
-    .ten-frame-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: #2196F3; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #2196F3; margin: 1px; }
     .dot.secondary { background: #f44336; }
     .dot.dim { background: #e0e0e0; border: 1px solid #ccc; }
-    .division-group { border: 2px solid #4CAF50; padding: 4px; border-radius: 6px; display: inline-block; margin: 3px; background: white; }
+    .division-group { border: 2px solid #4CAF50; padding: 5px; border-radius: 8px; display: inline-block; margin: 4px; background: white; }
   </style>
 </head>
 <body>
@@ -55,7 +55,7 @@
 <div id="loginScreen">
   <h1>Clubhouse 🪙</h1>
   <input type="text" id="loginName" placeholder="Name">
-  <input type="password" id="loginPin" placeholder="4-Digit PIN" maxlength="4">
+  <input type="password" id="loginPin" placeholder="PIN" maxlength="4">
   <div class="login-btns">
     <button onclick="attemptLogin()">Enter</button>
     <button class="pin-btn" onclick="updatePinPrompt()">New PIN</button>
@@ -64,10 +64,10 @@
 </div>
 
 <div class="box" id="appContent" style="display:none;">
-  <button id="resetBtn" onclick="resetPrompt()" style="position:absolute; top:5px; left:5px; opacity:0.1; border:none; background:none; font-size:9px;">Admin</button>
+  <button id="resetBtn" onclick="resetPrompt()" style="position:absolute; top:5px; left:5px; opacity:0.1; border:none; background:none; font-size:10px;">Admin</button>
   <div class="top-stats">
-    <div class="stat-pill">Math: <span id="mathCount">0</span>/10</div>
-    <div class="stat-pill">Spell: <span id="spellCount">0</span>/20</div>
+    <div class="stat-pill">Math: <span id="mathCountDisplay">0</span>/10</div>
+    <div class="stat-pill">Spell: <span id="spellCountDisplay">0</span>/20</div>
     <button id="modeBtn" onclick="toggleMode()">Switch</button>
   </div>
   
@@ -77,7 +77,7 @@
   </div>
   
   <div id="spellingArea" style="display:none;">
-    <button id="speakBtn" onclick="sayWord()" style="background:#2196F3; border:none; border-radius:50%; width:40px; height:40px; color:white; font-size:18px;">🔊</button>
+    <button onclick="sayWord()" style="background:#2196F3; border:none; border-radius:50%; width:45px; height:45px; color:white; font-size:20px; cursor:pointer; margin-bottom:5px;">🔊</button>
     <div class="letter-grid" id="letterGrid"></div>
   </div>
 
@@ -118,14 +118,14 @@
 <div class="bottom-info" id="tokenFooter" style="display:none;">
     <p id="message"></p>
     <div class="token-labels">
-      <span>Today: <span id="todayTokens">0</span>/300</span>
-      <span>Total: <span id="totalTokens">0</span> 🪙</span>
+      <span>Today: <span id="todayTokensDisplay">0</span>/300</span>
+      <span>Total: <span id="totalTokensDisplay">0</span> 🪙</span>
     </div>
     <div class="progress-container"><div id="progressBar"></div></div>
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6EpHAvwQrMluOEH1WbGmlRDgD515lnEsQZi2ChFhVyt_969Z_jsNRi6-kHW9wYryVTQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybDdl5ITewTLRj5GfHb_XGLvFqh4nVnzM6dM75Q9a8rqv8gVmze4ipKr4XERR81c1xgA/exec';
 
 let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0 };
 let mode = "math", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [];
@@ -148,7 +148,7 @@ async function attemptLogin() {
         const data = await res.json();
         if(data === "error") { err.innerText = "Wrong name or PIN!"; }
         else {
-            user = { name, pin, ...data, history: parseInt(data.history) || 0 };
+            user = { name, pin, ...data, history: parseInt(data.history) || 0, math: parseInt(data.math) || 0, spell: parseInt(data.spell) || 0 };
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("appContent").style.display = "flex";
             document.getElementById("keyboardArea").style.display = "flex";
@@ -168,7 +168,8 @@ async function updatePinPrompt() {
     if(newPin && newPin.length === 4) {
         const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ name, oldPin, newPin, action: "updatePin" }) });
         const result = await res.text();
-        alert(result === "success" ? "PIN Updated!" : "Failed. Check Name/PIN.");
+        if(result === "success") { alert("PIN Updated! Please login with new PIN."); location.reload(); }
+        else { alert("Failed. Check Name/Current PIN."); }
     }
 }
 
@@ -179,6 +180,16 @@ async function loadWords() {
 }
 
 async function sync() { fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({...user, action: "sync"}) }); }
+
+function createConfetti() {
+    for (let i = 0; i < 40; i++) {
+        const c = document.createElement('div'); c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        c.style.animation = `fall ${Math.random() * 2 + 1}s linear forwards`;
+        document.body.appendChild(c); setTimeout(() => c.remove(), 2500);
+    }
+}
 
 function toggleMode() {
     mode = (mode === "math") ? "spelling" : "math";
@@ -215,14 +226,20 @@ function updateActiveBox() {
 
 function generateMath() {
     const qCount = user.math + 1;
-    if (qCount <= 3) { operator = Math.random() > 0.5 ? "+" : "-"; num1 = Math.floor(Math.random() * 10) + 10; num2 = Math.floor(Math.random() * 5) + 1; }
-    else if (qCount <= 7) { 
+    if (qCount <= 3) { // Easy
+        operator = Math.random() > 0.5 ? "+" : "-";
+        num1 = Math.floor(Math.random() * 10) + 10;
+        num2 = Math.floor(Math.random() * 6) + 1;
+    } else if (qCount <= 7) { // Medium
         const ops = ["+", "-", "*"]; operator = ops[Math.floor(Math.random() * 3)];
         if (operator === "*") { num1 = Math.floor(Math.random() * 4) + 2; num2 = Math.floor(Math.random() * 4) + 2; }
         else { num1 = Math.floor(Math.random() * 15) + 15; num2 = Math.floor(Math.random() * 10) + 5; }
-    } else { 
-        operator = Math.random() > 0.5 ? "*" : "/"; num2 = Math.floor(Math.random() * 4) + 6; let ans = Math.floor(Math.random() * 4) + 6;
-        if (operator === "*") num1 = ans; else num1 = num2 * ans;
+    } else { // Hard (Digits 6-9)
+        operator = Math.random() > 0.5 ? "*" : "/";
+        num2 = Math.floor(Math.random() * 4) + 6; 
+        let ans = Math.floor(Math.random() * 4) + 6;
+        if (operator === "*") num1 = ans;
+        else num1 = num2 * ans;
     }
     if (operator === "-" && num2 > num1) [num1, num2] = [num2, num1];
     correctAnswer = (operator === "+") ? num1 + num2 : (operator === "-") ? num1 - num2 : (operator === "*") ? num1 * num2 : num1 / num2;
@@ -254,16 +271,15 @@ function checkAnswer() {
     const limitReached = (mode === "math" ? user.math >= 10 : user.spell >= 20);
 
     if (isCorrect) {
-        playCheer();
+        playCheer(); createConfetti();
         let r = 0; if (!limitReached && user.today < 300) { r = 10; if (mode === "math") user.math++; else user.spell++; }
         user.total += r; user.today += r; user.history++;
-        document.getElementById("message").style.color = "green"; document.getElementById("message").innerText = "Bravo! 🌟";
+        document.getElementById("message").style.color = "green"; document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`;
         sync(); updateScore(); setTimeout(nextTask, 1500);
     } else {
         attempts++; playFart(); 
-        // AUTO-VOID logic
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; }
-        else { const g = document.getElementById("letterGrid"); Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); }
+        else { const g = document.getElementById("letterGrid"); Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); }
         
         if (!penaltyApplied && !limitReached) { user.total = Math.max(0, user.total - 3); user.today = Math.max(0, user.today - 3); penaltyApplied = true; user.logs += `[${new Date().toLocaleTimeString()}] ${mode}: ${val} wrong.\n`; sync(); updateScore(); }
         document.getElementById("message").style.color = "red"; document.getElementById("message").innerText = "-3 Tokens Penalty 💨";
@@ -289,13 +305,15 @@ function showHelp() {
         let availableIndices = []; for(let i=1; i<currentWord.length-1; i++) { if(!currentRevealedIndices.includes(i)) availableIndices.push(i); }
         if(availableIndices.length > 0) { let randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)]; currentRevealedIndices.push(randomIndex); }
         let hint = ""; for(let i=0; i<currentWord.length; i++) { if (i === 0 || i === currentWord.length - 1 || currentRevealedIndices.includes(i)) { hint += currentWord[i] + " "; } else { hint += "_ "; } }
-        aid.innerHTML = `<p style='font-size:26px; color:#2196F3; font-weight:bold; margin:0;'>${hint.toLowerCase()}</p>`;
+        aid.innerHTML = `<p style='font-size:32px; color:#2196F3; font-weight:bold; margin:0;'>${hint.toLowerCase()}</p>`;
     }
 }
 
 function updateScore() {
-    document.getElementById("mathCount").innerText = user.math; document.getElementById("spellCount").innerText = user.spell;
-    document.getElementById("todayTokens").innerText = user.today; document.getElementById("totalTokens").innerText = user.total;
+    document.getElementById("mathCountDisplay").innerText = user.math; 
+    document.getElementById("spellCountDisplay").innerText = user.spell;
+    document.getElementById("todayTokensDisplay").innerText = user.today; 
+    document.getElementById("totalTokensDisplay").innerText = user.total;
     document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%";
 }
 
