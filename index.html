@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Clubhouse 5.6</title>
+  <title>Clubhouse 5.7</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card: #ffffff; --accent: #ede7f6; }
@@ -9,11 +9,11 @@
     
     #mainWrapper { width: 95%; max-width: 440px; height: 85vh; display: flex; flex-direction: column; position: relative; background: var(--card); border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
 
-    #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); z-index: 3000; display: none; align-items: center; justify-content: center; }
+    #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
     .loading-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid var(--primary); font-weight: bold; color: var(--primary); font-size: 18px; }
 
     #loginScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2500; color: white; }
-    #loginScreen input { margin: 8px; padding: 15px; border-radius: 12px; border: none; font-size: 18px; width: 220px; text-align: center; }
+    #loginScreen input { margin: 8px; padding: 15px; border-radius: 12px; border: none; font-size: 18px; width: 220px; text-align: center; outline: none; }
     .login-btns { display: flex; gap: 10px; margin-top: 15px; }
     #loginScreen button { background: #4CAF50; color: white; padding: 14px 28px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; }
 
@@ -24,15 +24,15 @@
     
     #modeBtn { background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 10px; padding: 4px 10px; cursor: pointer; align-self: center; margin-top: 2px; }
 
-    .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-    .question { font-size: 38px; font-weight: bold; color: #333; margin-bottom: 5px; }
+    .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .question { font-size: 38px; font-weight: bold; color: #333; margin-bottom: 5px; width: 100%; }
     #displayArea { font-size: 30px; font-weight: bold; color: #4CAF50; min-height: 40px; border-bottom: 3px dashed #ccc; min-width: 60px; text-align: center; }
 
     .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 5px; margin: 10px 0; width: 100%; }
-    .letter-box { width: 32px; height: 42px; font-size: 22px; text-align: center; border: 2px solid #ddd; border-radius: 8px; text-transform: lowercase; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+    .letter-box { width: 32px; height: 42px; font-size: 22px; text-align: center; border: 2px solid #ddd; border-radius: 8px; text-transform: lowercase; font-weight: bold; display: flex; align-items: center; justify-content: center; background: white; }
     .letter-box.active { border-color: var(--primary); background: #f3e5f5; }
 
-    #helpArea { background: #fffde7; border-radius: 15px; border: 1px dashed #fbc02d; padding: 5px; min-height: 80px; display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative; }
+    #helpArea { background: #fffde7; border-radius: 15px; border: 1px dashed #fbc02d; padding: 5px; min-height: 80px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
     
     #keyboardArea { height: 35%; background: #f8f9fa; padding: 5px; display: flex; flex-direction: column; justify-content: center; border-top: 2px solid #ddd; }
     .kb-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 5px; }
@@ -107,7 +107,7 @@
           <div class="kb-row"><button class="key" onclick="keyPress('7')">7</button><button class="key" onclick="keyPress('8')">8</button><button class="key" onclick="keyPress('9')">9</button></div>
           <div class="kb-row"><button class="key" style="visibility:hidden"></button><button class="key" onclick="keyPress('0')">0</button><button class="key" style="visibility:hidden"></button></div>
         </div>
-        <div style="display:flex; flex-direction:column; gap:8px; margin-left:10px;">
+        <div style="display:flex; flex-direction:column; gap:10px; margin-left:10px;">
           <button class="key del" onclick="keyPress('DEL')">⌫</button>
           <button class="key action" onclick="checkAnswer()">OK</button>
         </div>
@@ -150,6 +150,7 @@ function playFart() { const osc = audioCtx.createOscillator(); const g = audioCt
 async function attemptLogin() {
     const name = document.getElementById("loginName").value.trim();
     const pin = document.getElementById("loginPin").value.trim();
+    const err = document.getElementById("loginError");
     if(!name || !pin) return;
     document.getElementById("loadingOverlay").style.display = "flex";
     try {
@@ -157,19 +158,10 @@ async function attemptLogin() {
         const data = await res.json();
         if(data === "error") { 
             document.getElementById("loadingOverlay").style.display = "none";
-            document.getElementById("loginError").innerText = "Wrong name or PIN!"; 
+            err.innerText = "Wrong name or PIN!"; 
         } else {
             const today = new Date().toLocaleDateString();
-            user = { 
-                name, pin, ...data, 
-                history: parseInt(data.history) || 0, 
-                math: parseInt(data.math) || 0, 
-                spell: parseInt(data.spell) || 0,
-                mathTotal: parseInt(data.mathTotal) || 0,
-                spellTotal: parseInt(data.spellTotal) || 0,
-                today: parseInt(data.today) || 0,
-                total: parseInt(data.total) || 0
-            };
+            user = { name, pin, ...data, history: parseInt(data.history) || 0 };
             if(user.lastDate !== today) { user.math = 0; user.spell = 0; user.today = 0; user.lastDate = today; }
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("loadingOverlay").style.display = "none";
@@ -178,7 +170,7 @@ async function attemptLogin() {
             document.getElementById("tokenFooter").style.display = "flex";
             await loadWords(); updateScore(); nextTask();
         }
-    } catch(e) { document.getElementById("loadingOverlay").style.display = "none"; alert("Login Failed. Check PIN!"); }
+    } catch(e) { document.getElementById("loadingOverlay").style.display = "none"; err.innerText = "Connection Error"; }
 }
 
 async function updatePinPrompt() {
@@ -274,33 +266,18 @@ function sayWord() { window.speechSynthesis.cancel(); let m = new SpeechSynthesi
 function checkAnswer() {
     let val = "";
     if (mode === "math") {
-        val = currentInput.trim(); 
-        // 1. Math Guard: If no numbers typed, KILL the button
-        if (!val || val === "") return; 
+        val = currentInput.trim();
+        if (!val || val === "") return;
     } else {
         const grid = document.getElementById("letterGrid");
-        let allFilled = true;
-        // 2. Spelling Guard: Check every middle box
+        let filled = true;
         for (let i = 1; i < currentWord.length - 1; i++) {
-            if (!grid.children[i].innerText || grid.children[i].innerText.trim() === "") {
-                allFilled = false;
-                break;
-            }
+            if (!grid.children[i].innerText || grid.children[i].innerText.trim() === "") { filled = false; break; }
         }
-        // If even ONE box is empty, KILL the button
-        if (!allFilled) return;
-        
-        // Re-construct the full word for checking
+        if (!filled) return;
         Array.from(grid.children).forEach(b => val += b.innerText);
     }
 
-    // --- FROM HERE DOWN, THE LOGIC CONTINUES AS NORMAL ---
-    const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
-    // ... rest of the penalty and success code
-    
-    // NO SKIP BLOCK
-    if (!val || (mode === "spelling" && val.length < currentWord.length)) return; 
-    
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
     const limitReached = (mode === "math" ? user.math >= 10 : user.spell >= 20);
 
@@ -312,16 +289,10 @@ function checkAnswer() {
         sync(); updateScore(); setTimeout(nextTask, 1500);
     } else {
         attempts++; playFart(); 
-        
-        // ONE-TIME PENALTY ONLY
         if (!penaltyApplied && !limitReached) { user.today = Math.max(0, user.today - 3); penaltyApplied = true; user.logs += `[${new Date().toLocaleTimeString()}] ${mode}: ${val} wrong.\n`; sync(); updateScore(); }
-        
         document.getElementById("message").style.color = "red"; document.getElementById("message").innerText = "-3 Tokens 💨";
-        
-        // AUTO-VOID FOR RETRY
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; }
         else { const g = document.getElementById("letterGrid"); Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); }
-        
         showHelp();
         if (attempts >= 5) { document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord}`; setTimeout(nextTask, 2500); }
     }
@@ -345,15 +316,15 @@ function showHelp() {
         let availableIndices = []; for(let i=1; i<currentWord.length-1; i++) { if(!currentRevealedIndices.includes(i)) availableIndices.push(i); }
         if(availableIndices.length > 0) { let randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)]; currentRevealedIndices.push(randomIndex); }
         let hint = ""; for(let i=0; i<currentWord.length; i++) { if (i === 0 || i === currentWord.length - 1 || currentRevealedIndices.includes(i)) { hint += currentWord[i] + " "; } else { hint += "_ "; } }
-        aid.innerHTML = `<p style='font-size:32px; color:#6c5ce7; font-weight:bold; margin:0; letter-spacing:4px;'>${hint.toLowerCase()}</p>`;
+        aid.innerHTML = `<p style='font-size:26px; color:#6c5ce7; font-weight:bold; margin:0; letter-spacing:4px;'>${hint.toLowerCase()}</p>`;
     }
 }
 
 function updateScore() {
     document.getElementById("mathTDisplay").innerText = user.math; 
-    document.getElementById("mathTotalDisplay").innerText = user.mathTotal;
+    document.getElementById("mathTotalDisplay").innerText = user.mathTotal || 0;
     document.getElementById("spellTDisplay").innerText = user.spell; 
-    document.getElementById("spellTotalDisplay").innerText = user.spellTotal;
+    document.getElementById("spellTotalDisplay").innerText = user.spellTotal || 0;
     document.getElementById("todayTokensDisplay").innerText = user.today; 
     document.getElementById("totalTokensDisplay").innerText = user.total;
     document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%";
