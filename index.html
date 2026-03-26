@@ -1,255 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token Clubhouse</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Learning App</title>
 <style>
-body {
-  font-family: Arial;
-  background: linear-gradient(to bottom, #74b9ff, #a29bfe);
-  text-align: center;
-  padding: 20px;
-  margin: 0;
-}
-
-.container {
-  background: white;
-  padding: 20px;
-  border-radius: 20px;
-  max-width: 400px;
-  margin: auto;
-}
-
-h2 { margin-top: 0; }
-
-input {
-  width: 90%;
-  padding: 10px;
-  margin: 8px;
-  font-size: 16px;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  margin: 5px;
-  border-radius: 10px;
-  border: none;
-  background: #0984e3;
-  color: white;
-}
-
-.question {
-  font-size: 48px;
-  font-weight: bold;
-}
-
-#displayArea {
-  font-size: 36px;
-  color: green;
-  min-height: 40px;
-  margin: 10px;
-}
-
-#message {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.keypad {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.key {
-  width: 60px;
-  height: 60px;
-  margin: 5px;
-  font-size: 20px;
-  border-radius: 10px;
-  background: #dfe6e9;
-}
+body{font-family:Arial;margin:0;background:#f5f5f5;text-align:center}
+.container{max-width:420px;margin:auto;background:white;padding:20px;border-radius:20px;margin-top:20px;box-shadow:0 0 10px rgba(0,0,0,0.1)}
+.hidden{display:none}
+button{padding:10px 15px;margin:5px;border:none;border-radius:10px;background:#007bff;color:white;font-size:16px}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.key{background:#ddd;color:black;font-size:18px}
+.helper{margin-top:10px}
+.dot{display:inline-block;width:10px;height:10px;background:black;border-radius:50%;margin:2px}
+.grid{display:grid;grid-template-columns:repeat(10,10px);gap:2px;justify-content:center;margin-top:5px}
+.square{width:10px;height:10px;background:black}
 </style>
 </head>
-
 <body>
 
-<div class="container" id="loginBox">
-  <h2>Login</h2>
-  <input id="name" placeholder="Name"><br>
-  <input id="pin" placeholder="PIN" type="password"><br>
-  <button onclick="login()">Login</button>
+<div class="container" id="login">
+<h3>Parent Login</h3>
+<input type="password" id="pin" placeholder="Enter PIN"><br>
+<button onclick="login()">Enter</button>
+<button onclick="changePIN()">Change PIN</button>
 </div>
 
-<div class="container" id="appBox" style="display:none;">
-  <h2 id="welcome"></h2>
-
-  <p>💰 Total: <span id="total"></span></p>
-  <p>⭐ Today: <span id="today"></span></p>
-
-  <button onclick="startMath()">Math</button>
-  <button onclick="startSpell()">Spelling</button>
-
-  <div id="gameArea" style="display:none;">
-    <div class="question" id="question"></div>
-    <div id="displayArea"></div>
-    <div id="message"></div>
-
-    <div class="keypad" id="keypad"></div>
-
-    <button onclick="submitAnswer()">Submit</button>
-  </div>
+<div class="container hidden" id="app">
+<h3 id="question"></h3>
+<div id="helper" class="helper"></div>
+<input id="answer" readonly style="font-size:20px"><br>
+<div class="numpad" id="numpad"></div>
+<button onclick="submitAnswer()">Submit</button>
+<button onclick="newQuestion()">New Question</button>
+<p id="balance"></p>
+<button onclick="resetCheck()" style="position:fixed;bottom:10px;left:10px;background:red">Reset</button>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNKQpzsyk5W5QCtUOBWDo0J2LTMGtBgsf4QiWe6UbD8qdIJ2LY-x0PWWdnOhckM3i5vA/exec";
+let PIN="1234";
+let balance=0;
+let attempts=0;
+let correctAnswer=0;
 
-let user = {};
-let mode = "";
-let answer = 0;
-let currentInput = "";
+function login(){
+ if(document.getElementById('pin').value===PIN){
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  newQuestion();
+ } else alert('Wrong PIN');
+}
 
-// LOGIN
-async function login() {
-  const name = document.getElementById("name").value;
-  const pin = document.getElementById("pin").value;
+function changePIN(){
+ let newPin=prompt('Enter new PIN');
+ if(newPin) PIN=newPin;
+}
 
-  let res = await fetch(`${SCRIPT_URL}?action=login&name=${name}&pin=${pin}`);
-  let data = await res.json();
+function generateKeyboard(){
+ let pad=document.getElementById('numpad');
+ pad.innerHTML='';
+ for(let i=1;i<=9;i++){
+  let b=document.createElement('button');
+  b.innerText=i;
+  b.className='key';
+  b.onclick=()=>addNumber(i);
+  pad.appendChild(b);
+ }
+ let zero=document.createElement('button');
+ zero.innerText='0';
+ zero.onclick=()=>addNumber(0);
+ pad.appendChild(zero);
+ let del=document.createElement('button');
+ del.innerText='←';
+ del.onclick=()=>document.getElementById('answer').value='';
+ pad.appendChild(del);
+}
 
-  if (data === "error") {
-    alert("Login failed");
-    return;
+function addNumber(n){
+ document.getElementById('answer').value+=n;
+}
+
+function newQuestion(){
+ attempts=0;
+ let a=Math.floor(Math.random()*10)+1;
+ let b=Math.floor(Math.random()*10)+1;
+ let op=['+','-','X','/'][Math.floor(Math.random()*4)];
+ if(op==='+') correctAnswer=a+b;
+ if(op==='-') correctAnswer=a-b;
+ if(op==='X') correctAnswer=a*b;
+ if(op==='/'){correctAnswer=a; a=a*b;}
+ document.getElementById('question').innerText=`${a} ${op} ${b}`;
+ document.getElementById('answer').value='';
+ generateHelper(a,b,op);
+}
+
+function generateHelper(a,b,op){
+ let h=document.getElementById('helper');
+ h.innerHTML='';
+ if(op==='+'||op==='-'){
+  for(let i=0;i<a;i++)h.innerHTML+='<span class="dot"></span>';
+  h.innerHTML+='<br>';
+  for(let i=0;i<b;i++)h.innerHTML+='<span class="dot"></span>';
+ }
+ if(op==='X'){
+  let grid=document.createElement('div');
+  grid.className='grid';
+  for(let i=0;i<a*b;i++){
+   let s=document.createElement('div');
+   s.className='square';
+   grid.appendChild(s);
   }
-
-  user = data;
-  user.name = name;
-
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("appBox").style.display = "block";
-  document.getElementById("welcome").innerText = "Hi " + name;
-
-  updateUI();
+  h.appendChild(grid);
+ }
 }
 
-// UPDATE UI
-function updateUI() {
-  document.getElementById("total").innerText = user.total;
-  document.getElementById("today").innerText = user.today;
-}
-
-// START MATH
-function startMath() {
-  mode = "math";
-  document.getElementById("gameArea").style.display = "block";
-
-  let a = Math.floor(Math.random()*10)+1;
-  let b = Math.floor(Math.random()*10)+1;
-
-  answer = a + b;
-  document.getElementById("question").innerText = `${a} + ${b}`;
-
-  currentInput = "";
-  document.getElementById("displayArea").innerText = "";
-
-  renderKeypad();
-}
-
-// START SPELLING
-let words = ["apple","dog","cat","bird"];
-
-function startSpell() {
-  mode = "spell";
-  document.getElementById("gameArea").style.display = "block";
-
-  let w = words[Math.floor(Math.random()*words.length)];
-  answer = w;
-
-  document.getElementById("question").innerText = w[0] + " _ _ " + w[w.length-1];
-
-  currentInput = "";
-  document.getElementById("displayArea").innerText = "";
-
-  renderKeyboardLetters();
-}
-
-// KEYPAD NUMBERS
-function renderKeypad() {
-  let pad = document.getElementById("keypad");
-  pad.innerHTML = "";
-
-  for (let i=0;i<=9;i++) {
-    let b = document.createElement("button");
-    b.className="key";
-    b.innerText=i;
-    b.onclick=()=>press(i);
-    pad.appendChild(b);
+function submitAnswer(){
+ let ans=parseInt(document.getElementById('answer').value);
+ if(ans===correctAnswer){
+  balance+=1;
+  alert('Great job! 🎉');
+  newQuestion();
+ } else {
+  attempts++;
+  balance-=0.3;
+  alert('Sorry, Penalty of 30 cents!');
+  if(attempts>=3){
+   if(confirm('I don\'t know the answer now, but I will ask and come back later. New question?')){
+    newQuestion();
+   }
   }
+ }
+ document.getElementById('balance').innerText='Balance: $'+balance.toFixed(2);
 }
 
-// LETTER KEYS
-function renderKeyboardLetters() {
-  let pad = document.getElementById("keypad");
-  pad.innerHTML = "";
-
-  let letters = "abcdefghijklmnopqrstuvwxyz";
-
-  for (let l of letters) {
-    let b = document.createElement("button");
-    b.className="key";
-    b.innerText=l;
-    b.onclick=()=>press(l);
-    pad.appendChild(b);
-  }
-}
-
-// PRESS KEY
-function press(val) {
-  currentInput += val;
-  document.getElementById("displayArea").innerText = currentInput;
-}
-
-// SUBMIT
-function submitAnswer() {
-
-  if (!currentInput) return;
-
-  let correct = (mode==="math")
-    ? Number(currentInput) === answer
-    : currentInput.toLowerCase() === answer;
-
-  let reward = correct ? 2 : 0;
-
-  if (correct) {
-    document.getElementById("message").innerText = `+${reward} 🪙 Great job!`;
-    user.total += reward;
-    user.today += reward;
-
-    if(mode==="math") user.math++;
-    if(mode==="spell") user.spell++;
-
-  } else {
-    document.getElementById("message").innerText = "Try again!";
-    let time = new Date();
-    let log = `[${time.getHours()}:${time.getMinutes()}] ${answer} → ${currentInput}\n`;
-    user.logs = (user.logs || "") + log;
-  }
-
-  sync();
-  updateUI();
-
-  currentInput="";
-  document.getElementById("displayArea").innerText="";
-}
-
-// SYNC TO GOOGLE SHEET
-async function sync() {
-  await fetch(SCRIPT_URL, {
-    method:"POST",
-    body: JSON.stringify(user)
-  });
+function resetCheck(){
+ let a=Math.floor(Math.random()*10)+10;
+ let q=`${a} X ${a}`;
+ let ans=prompt('Parent check: '+q);
+ if(parseInt(ans)===a*a){
+  if(confirm('Reset balance?')) balance=0;
+ }
 }
 </script>
 
