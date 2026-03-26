@@ -273,8 +273,30 @@ function sayWord() { window.speechSynthesis.cancel(); let m = new SpeechSynthesi
 
 function checkAnswer() {
     let val = "";
-    if (mode === "math") val = currentInput;
-    else { const grid = document.getElementById("letterGrid"); Array.from(grid.children).forEach(b => val += b.innerText); }
+    if (mode === "math") {
+        val = currentInput.trim(); 
+        // 1. Math Guard: If no numbers typed, KILL the button
+        if (!val || val === "") return; 
+    } else {
+        const grid = document.getElementById("letterGrid");
+        let allFilled = true;
+        // 2. Spelling Guard: Check every middle box
+        for (let i = 1; i < currentWord.length - 1; i++) {
+            if (!grid.children[i].innerText || grid.children[i].innerText.trim() === "") {
+                allFilled = false;
+                break;
+            }
+        }
+        // If even ONE box is empty, KILL the button
+        if (!allFilled) return;
+        
+        // Re-construct the full word for checking
+        Array.from(grid.children).forEach(b => val += b.innerText);
+    }
+
+    // --- FROM HERE DOWN, THE LOGIC CONTINUES AS NORMAL ---
+    const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
+    // ... rest of the penalty and success code
     
     // NO SKIP BLOCK
     if (!val || (mode === "spelling" && val.length < currentWord.length)) return; 
