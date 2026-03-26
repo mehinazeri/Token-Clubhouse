@@ -6,7 +6,7 @@
 <title>Kids Learning App</title>
 <style>
 body{font-family:Arial;margin:0;background:#f5f5f5;text-align:center}
-.container{max-width:420px;margin:auto;background:white;padding:20px;border-radius:20px;margin-top:20px;box-shadow:0 0 10px rgba(0,0,0,0.1)}
+.container{max-width:420px;margin:auto;background:white;padding:20px;border-radius:20px;margin-top:40px;box-shadow:0 0 10px rgba(0,0,0,0.1)}
 .hidden{display:none}
 button{padding:10px 15px;margin:5px;border:none;border-radius:10px;background:#007bff;color:white;font-size:16px}
 .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
@@ -15,18 +15,21 @@ button{padding:10px 15px;margin:5px;border:none;border-radius:10px;background:#0
 .dot{display:inline-block;width:10px;height:10px;background:black;border-radius:50%;margin:2px}
 .grid{display:grid;grid-template-columns:repeat(10,10px);gap:2px;justify-content:center;margin-top:5px}
 .square{width:10px;height:10px;background:black}
+input{padding:10px;border-radius:10px;border:1px solid #ccc;margin:5px;width:80%}
 </style>
 </head>
 <body>
 
 <div class="container" id="login">
-<h3>Parent Login</h3>
-<input type="password" id="pin" placeholder="Enter PIN"><br>
-<button onclick="login()">Enter</button>
+<h3>Welcome 👋</h3>
+<input id="kidName" placeholder="Child's Name"><br>
+<input type="password" id="pin" placeholder="Parent PIN"><br>
+<button onclick="login()">Start</button>
 <button onclick="changePIN()">Change PIN</button>
 </div>
 
 <div class="container hidden" id="app">
+<h3 id="welcome"></h3>
 <h3 id="question"></h3>
 <div id="helper" class="helper"></div>
 <input id="answer" readonly style="font-size:20px"><br>
@@ -42,11 +45,22 @@ let PIN="1234";
 let balance=0;
 let attempts=0;
 let correctAnswer=0;
+let kid="";
 
 function login(){
- if(document.getElementById('pin').value===PIN){
+ let enteredPin=document.getElementById('pin').value;
+ kid=document.getElementById('kidName').value;
+
+ if(!kid){
+  alert('Please enter name 😊');
+  return;
+ }
+
+ if(enteredPin===PIN){
   document.getElementById('login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
+  document.getElementById('welcome').innerText='Hi '+kid+'! 🌟';
+  generateKeyboard();
   newQuestion();
  } else alert('Wrong PIN');
 }
@@ -59,21 +73,22 @@ function changePIN(){
 function generateKeyboard(){
  let pad=document.getElementById('numpad');
  pad.innerHTML='';
- for(let i=1;i<=9;i++){
+
+ let keys=[1,2,3,4,5,6,7,8,9,'C',0,'←'];
+ keys.forEach(k=>{
   let b=document.createElement('button');
-  b.innerText=i;
   b.className='key';
-  b.onclick=()=>addNumber(i);
+  b.innerText=k;
+
+  if(k==='C') b.onclick=()=>document.getElementById('answer').value='';
+  else if(k==='←') b.onclick=()=>{
+    let v=document.getElementById('answer').value;
+    document.getElementById('answer').value=v.slice(0,-1);
+  }
+  else b.onclick=()=>addNumber(k);
+
   pad.appendChild(b);
- }
- let zero=document.createElement('button');
- zero.innerText='0';
- zero.onclick=()=>addNumber(0);
- pad.appendChild(zero);
- let del=document.createElement('button');
- del.innerText='←';
- del.onclick=()=>document.getElementById('answer').value='';
- pad.appendChild(del);
+ });
 }
 
 function addNumber(n){
@@ -85,10 +100,12 @@ function newQuestion(){
  let a=Math.floor(Math.random()*10)+1;
  let b=Math.floor(Math.random()*10)+1;
  let op=['+','-','X','/'][Math.floor(Math.random()*4)];
+
  if(op==='+') correctAnswer=a+b;
  if(op==='-') correctAnswer=a-b;
  if(op==='X') correctAnswer=a*b;
  if(op==='/'){correctAnswer=a; a=a*b;}
+
  document.getElementById('question').innerText=`${a} ${op} ${b}`;
  document.getElementById('answer').value='';
  generateHelper(a,b,op);
@@ -97,11 +114,13 @@ function newQuestion(){
 function generateHelper(a,b,op){
  let h=document.getElementById('helper');
  h.innerHTML='';
+
  if(op==='+'||op==='-'){
   for(let i=0;i<a;i++)h.innerHTML+='<span class="dot"></span>';
   h.innerHTML+='<br>';
   for(let i=0;i<b;i++)h.innerHTML+='<span class="dot"></span>';
  }
+
  if(op==='X'){
   let grid=document.createElement('div');
   grid.className='grid';
@@ -116,20 +135,22 @@ function generateHelper(a,b,op){
 
 function submitAnswer(){
  let ans=parseInt(document.getElementById('answer').value);
+
  if(ans===correctAnswer){
   balance+=1;
-  alert('Great job! 🎉');
+  alert('Great job '+kid+'! 🎉');
   newQuestion();
  } else {
   attempts++;
   balance-=0.3;
   alert('Sorry, Penalty of 30 cents!');
+
   if(attempts>=3){
-   if(confirm('I don\'t know the answer now, but I will ask and come back later. New question?')){
-    newQuestion();
-   }
+   let choice=confirm('I don\'t know the answer now, but I will ask and come back later.\n\nNew question?');
+   if(choice) newQuestion();
   }
  }
+
  document.getElementById('balance').innerText='Balance: $'+balance.toFixed(2);
 }
 
@@ -137,8 +158,12 @@ function resetCheck(){
  let a=Math.floor(Math.random()*10)+10;
  let q=`${a} X ${a}`;
  let ans=prompt('Parent check: '+q);
+
  if(parseInt(ans)===a*a){
-  if(confirm('Reset balance?')) balance=0;
+  if(confirm('Reset balance?')){
+   balance=0;
+   document.getElementById('balance').innerText='Balance: $0.00';
+  }
  }
 }
 </script>
