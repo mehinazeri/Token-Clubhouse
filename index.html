@@ -162,18 +162,20 @@ async function attemptLogin() {
         } else {
             const today = new Date().toLocaleDateString();
             user = { name, pin, ...data, history: parseInt(data.history) || 0 };
-// 1. Check if we need to reset for a new day
-if (user.lastDate && user.lastDate !== today) {
+// 1. Check if it's a brand new day
+if (user.lastDate !== today) {
     user.math = 0;
     user.spell = 0;
     user.today = 0;
     user.lastDate = today;
-    // 2. FORCE an immediate sync to the sheet so it marks "Today" as done
-    sync(); 
-} else if (!user.lastDate) {
-    // 3. If there's no date at all, set it to today but don't reset points
-    user.lastDate = today;
-    sync();
+    
+    // 2. FORCE a "Wait" sync so the sheet saves BEFORE the app opens
+    document.getElementById("loadingOverlay").querySelector(".loading-box").innerText = "Starting a new day...";
+    
+    await fetch(SCRIPT_URL, { 
+        method: "POST", 
+        body: JSON.stringify({...user, action: "sync"}) 
+    });
 }
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("loadingOverlay").style.display = "none";
