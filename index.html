@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.13</title>
+  <title>Melorin Clubhouse 5.14</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card: #ffffff; --accent: #ede7f6; }
@@ -100,8 +100,7 @@ async function attemptLogin() {
             document.getElementById("loadingOverlay").style.display = "none";
             err.innerText = "Wrong name or PIN!"; 
         } else {
-            const today = new Date().toLocaleDateString('en-AU');
-            // STEP 1: LOAD ALL DATA BEFORE DOING ANYTHING ELSE
+            // LOAD DATA SECURELY
             user = { 
                 name, pin, ...data, 
                 history: parseInt(data.history) || 0,
@@ -110,18 +109,27 @@ async function attemptLogin() {
                 today: parseInt(data.today) || 0,
                 total: parseInt(data.total) || 0,
                 mathTotal: parseInt(data.mathTotal) || 0,
-                spellTotal: parseInt(data.spellTotal) || 0,
-                lastDate: (data.lastDate || "").toString().trim()
+                spellTotal: parseInt(data.spellTotal) || 0
             };
+            
+            // 1. Force a universal date format (YYYY-MM-DD)
+            const now = new Date();
+            const today = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+            
+            // Clean the date from the sheet
+            let sheetDate = (user.lastDate || "").toString().split(' ')[0].trim();
 
-            // STEP 2: COMPARE DATES WITH CLEANED STRINGS
-            if (user.lastDate !== "" && user.lastDate !== today) {
-                document.getElementById("loadMsg").innerText = "New Day! Resetting Counters...";
-                user.math = 0; user.spell = 0; user.today = 0; user.lastDate = today;
-                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({...user, action: "sync"}) });
-            } else if (user.lastDate === "") {
+            // 2. THE STRICT FIX: Only reset if sheet has a date AND it's not today
+            if (sheetDate !== "" && sheetDate !== today) {
+                user.math = 0;
+                user.spell = 0;
+                user.today = 0;
                 user.lastDate = today;
+                document.getElementById("loadMsg").innerText = "New Day! Resetting Counters...";
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({...user, action: "sync"}) });
+            } else {
+                // Same day OR empty sheet, just keep the data
+                user.lastDate = today;
             }
 
             document.getElementById("loginScreen").style.display = "none";
