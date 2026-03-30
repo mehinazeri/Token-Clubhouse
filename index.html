@@ -1,51 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.12</title>
+  <title>Melorin Clubhouse 5.13</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card: #ffffff; --accent: #ede7f6; }
     body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; touch-action: manipulation; }
-    
     #mainWrapper { width: 95%; max-width: 440px; height: 85vh; display: flex; flex-direction: column; position: relative; background: var(--card); border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; }
-
     #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; }
-    .loading-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid var(--primary); font-weight: bold; color: var(--primary); font-size: 18px; }
-
+    .loading-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid var(--primary); font-weight: bold; color: var(--primary); font-size: 18px; text-align: center; }
     #loginScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2500; color: white; }
     #loginScreen input { margin: 8px; padding: 15px; border-radius: 12px; border: none; font-size: 18px; width: 220px; text-align: center; outline: none; }
     .login-btns { display: flex; gap: 10px; margin-top: 15px; }
     #loginScreen button { background: #4CAF50; color: white; padding: 14px 28px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; }
-
     .top-section { padding: 10px; height: 50%; display: flex; flex-direction: column; box-sizing: border-box; }
     .top-stats { display: flex; flex-direction: column; gap: 4px; margin-bottom: 5px; }
     .stat-row { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #555; }
     .stat-row b { color: var(--primary); }
-    
     #modeBtn { background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 10px; padding: 4px 10px; cursor: pointer; align-self: center; margin-top: 2px; }
-
     .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     .question { font-size: 38px; font-weight: bold; color: #333; margin-bottom: 5px; width: 100%; }
     #displayArea { font-size: 30px; font-weight: bold; color: #4CAF50; min-height: 40px; border-bottom: 3px dashed #ccc; min-width: 60px; text-align: center; }
-
     .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 5px; margin: 10px 0; width: 100%; }
     .letter-box { width: 32px; height: 42px; font-size: 22px; text-align: center; border: 2px solid #ddd; border-radius: 8px; text-transform: lowercase; font-weight: bold; display: flex; align-items: center; justify-content: center; background: white; }
     .letter-box.active { border-color: var(--primary); background: #f3e5f5; }
-
     #helpArea { background: #fffde7; border-radius: 15px; border: 1px dashed #fbc02d; padding: 5px; min-height: 80px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-    
     #keyboardArea { height: 35%; background: #f8f9fa; padding: 5px; display: flex; flex-direction: column; justify-content: center; border-top: 2px solid #ddd; }
     .kb-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 5px; }
     .key { background: #fff; border-radius: 8px; padding: 14px 0; font-size: 20px; font-weight: bold; width: 42px; border: none; box-shadow: 0 3px 0 #ccc; }
     .key:active { transform: translateY(2px); box-shadow: none; }
     .key.action { background: #4CAF50; color: white; box-shadow: 0 3px 0 #2e7d32; width: 75px; }
     .key.del { background: #ff5252; color: white; box-shadow: 0 3px 0 #c62828; width: 75px; }
-
     .bottom-info { height: 15%; padding: 5px 20px; display: flex; flex-direction: column; justify-content: center; background: white; }
     .progress-container { width: 100%; height: 14px; background: #eee; border-radius: 7px; overflow: hidden; border: 1px solid #ddd; }
     #progressBar { height: 100%; width: 0%; background: #4CAF50; transition: width 0.5s; }
     #message { font-weight: bold; height: 22px; font-size: 18px; margin-bottom: 2px; }
-
     .ten-frame-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
     .dot { width: 11px; height: 11px; border-radius: 50%; background: #2196F3; }
     .dot.secondary { background: #f44336; }
@@ -58,8 +47,7 @@
 <body>
 
 <div id="mainWrapper">
-  <div id="loadingOverlay"><div class="loading-box">Connecting to your profile...</div></div>
-
+  <div id="loadingOverlay"><div class="loading-box" id="loadMsg">Connecting to your profile...</div></div>
   <div id="loginScreen">
     <h1>Melorin Clubhouse 🪙</h1>
     <input type="text" id="loginName" placeholder="Name">
@@ -70,80 +58,31 @@
     </div>
     <p id="loginError" style="font-size:12px; margin-top:10px; color:#ffcdd2;"></p>
   </div>
-
   <div class="top-section" id="appContent" style="display:none;">
     <button onclick="resetPrompt()" style="position:absolute; top:5px; left:5px; opacity:0.1; border:none; background:none;">⚙️</button>
     <div class="top-stats">
-      <div class="stat-row">
-        <span>Math Today: <b><span id="mathTDisplay">0</span>/10</b></span>
-        <span>Math Total: <b><span id="mathTotalDisplay">0</span></b></span>
-      </div>
-      <div class="stat-row">
-        <span>Spell Today: <b><span id="spellTDisplay">0</span>/20</b></span>
-        <span>Spell Total: <b><span id="spellTotalDisplay">0</span></b></span>
-      </div>
+      <div class="stat-row"><span>Math Today: <b><span id="mathTDisplay">0</span>/10</b></span><span>Math Total: <b><span id="mathTotalDisplay">0</span></b></span></div>
+      <div class="stat-row"><span>Spell Today: <b><span id="spellTDisplay">0</span>/20</b></span><span>Spell Total: <b><span id="spellTotalDisplay">0</span></b></span></div>
       <button id="modeBtn" onclick="toggleMode()">Switch Game</button>
     </div>
-    
     <div class="question-area">
-      <div id="mathArea">
-        <div class="question" id="mathQuestion"></div>
-        <div id="displayArea">?</div>
-      </div>
-      <div id="spellingArea" style="display:none; width:100%;">
-        <button onclick="sayWord()" style="background:#2196F3; border:none; border-radius:50%; width:45px; height:45px; color:white; margin-bottom:5px; cursor:pointer;">🔊</button>
-        <div id="letterGrid" class="letter-grid"></div>
-      </div>
+      <div id="mathArea"><div class="question" id="mathQuestion"></div><div id="displayArea">?</div></div>
+      <div id="spellingArea" style="display:none; width:100%;"><button onclick="sayWord()" style="background:#2196F3; border:none; border-radius:50%; width:45px; height:45px; color:white; margin-bottom:5px; cursor:pointer;">🔊</button><div id="letterGrid" class="letter-grid"></div></div>
     </div>
     <div id="helpArea"><div id="visualAid"></div></div>
   </div>
-
   <div id="keyboardArea" style="display:none;">
-    <div id="numpad" style="display:none;">
-      <div style="display:flex; justify-content:center; align-items:center;">
-        <div>
-          <div class="kb-row"><button class="key" onclick="keyPress('1')">1</button><button class="key" onclick="keyPress('2')">2</button><button class="key" onclick="keyPress('3')">3</button></div>
-          <div class="kb-row"><button class="key" onclick="keyPress('4')">4</button><button class="key" onclick="keyPress('5')">5</button><button class="key" onclick="keyPress('6')">6</button></div>
-          <div class="kb-row"><button class="key" onclick="keyPress('7')">7</button><button class="key" onclick="keyPress('8')">8</button><button class="key" onclick="keyPress('9')">9</button></div>
-          <div class="kb-row"><button class="key" style="visibility:hidden"></button><button class="key" onclick="keyPress('0')">0</button><button class="key" style="visibility:hidden"></button></div>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:10px; margin-left:10px;">
-          <button class="key del" onclick="keyPress('DEL')">⌫</button>
-          <button class="key action" onclick="checkAnswer()">OK</button>
-        </div>
-      </div>
-    </div>
-    <div id="spellpad" style="display:none;">
-      <div class="kb-row"><button class="key" onclick="keyPress('q')">q</button><button class="key" onclick="keyPress('w')">w</button><button class="key" onclick="keyPress('e')">e</button><button class="key" onclick="keyPress('r')">r</button><button class="key" onclick="keyPress('t')">t</button><button class="key" onclick="keyPress('y')">y</button><button class="key" onclick="keyPress('u')">u</button><button class="key" onclick="keyPress('i')">i</button><button class="key" onclick="keyPress('o')">o</button><button class="key" onclick="keyPress('p')">p</button></div>
-      <div class="kb-row"><button class="key" onclick="keyPress('a')">a</button><button class="key" onclick="keyPress('s')">s</button><button class="key" onclick="keyPress('d')">d</button><button class="key" onclick="keyPress('f')">f</button><button class="key" onclick="keyPress('g')">g</button><button class="key" onclick="keyPress('h')">h</button><button class="key" onclick="keyPress('j')">j</button><button class="key" onclick="keyPress('k')">k</button><button class="key" onclick="keyPress('l')">l</button></div>
-      <div class="kb-row">
-        <button class="key" onclick="keyPress('z')">z</button><button class="key" onclick="keyPress('x')">x</button><button class="key" onclick="keyPress('c')">c</button><button class="key" onclick="keyPress('v')">v</button><button class="key" onclick="keyPress('b')">b</button><button class="key" onclick="keyPress('n')">n</button><button class="key" onclick="keyPress('m')">m</button>
-        <div style="display:flex; flex-direction:column; gap:4px; margin-left:5px;">
-           <button class="key del" style="width:55px; padding:5px; font-size:16px;" onclick="keyPress('DEL')">⌫</button>
-           <button class="key action" style="width:55px; padding:5px; font-size:16px;" onclick="checkAnswer()">OK</button>
-        </div>
-      </div>
-    </div>
+    <div id="numpad" style="display:none;"><div style="display:flex; justify-content:center; align-items:center;"><div><div class="kb-row"><button class="key" onclick="keyPress('1')">1</button><button class="key" onclick="keyPress('2')">2</button><button class="key" onclick="keyPress('3')">3</button></div><div class="kb-row"><button class="key" onclick="keyPress('4')">4</button><button class="key" onclick="keyPress('5')">5</button><button class="key" onclick="keyPress('6')">6</button></div><div class="kb-row"><button class="key" onclick="keyPress('7')">7</button><button class="key" onclick="keyPress('8')">8</button><button class="key" onclick="keyPress('9')">9</button></div><div class="kb-row"><button class="key" style="visibility:hidden"></button><button class="key" onclick="keyPress('0')">0</button><button class="key" style="visibility:hidden"></button></div></div><div style="display:flex; flex-direction:column; gap:10px; margin-left:10px;"><button class="key del" onclick="keyPress('DEL')">⌫</button><button class="key action" onclick="checkAnswer()">OK</button></div></div></div>
+    <div id="spellpad" style="display:none;"><div class="kb-row"><button class="key" onclick="keyPress('q')">q</button><button class="key" onclick="keyPress('w')">w</button><button class="key" onclick="keyPress('e')">e</button><button class="key" onclick="keyPress('r')">r</button><button class="key" onclick="keyPress('t')">t</button><button class="key" onclick="keyPress('y')">y</button><button class="key" onclick="keyPress('u')">u</button><button class="key" onclick="keyPress('i')">i</button><button class="key" onclick="keyPress('o')">o</button><button class="key" onclick="keyPress('p')">p</button></div><div class="kb-row"><button class="key" onclick="keyPress('a')">a</button><button class="key" onclick="keyPress('s')">s</button><button class="key" onclick="keyPress('d')">d</button><button class="key" onclick="keyPress('f')">f</button><button class="key" onclick="keyPress('g')">g</button><button class="key" onclick="keyPress('h')">h</button><button class="key" onclick="keyPress('j')">j</button><button class="key" onclick="keyPress('k')">k</button><button class="key" onclick="keyPress('l')">l</button></div><div class="kb-row"><button class="key" onclick="keyPress('z')">z</button><button class="key" onclick="keyPress('x')">x</button><button class="key" onclick="keyPress('c')">c</button><button class="key" onclick="keyPress('v')">v</button><button class="key" onclick="keyPress('b')">b</button><button class="key" onclick="keyPress('n')">n</button><button class="key" onclick="keyPress('m')">m</button><div style="display:flex; flex-direction:column; gap:4px; margin-left:5px;"><button class="key del" style="width:55px; padding:5px; font-size:16px;" onclick="keyPress('DEL')">⌫</button><button class="key action" style="width:55px; padding:5px; font-size:16px;" onclick="checkAnswer()">OK</button></div></div></div>
   </div>
-
-  <div class="bottom-info" id="tokenFooter" style="display:none;">
-    <p id="message"></p>
-    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold;">
-      <span>Coins Today: <span id="todayTokensDisplay">0</span>/300</span>
-      <span>Bank: <span id="totalTokensDisplay">0</span> 🪙</span>
-    </div>
-    <div class="progress-container"><div id="progressBar"></div></div>
-  </div>
+  <div class="bottom-info" id="tokenFooter" style="display:none;"><p id="message"></p><div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold;"><span>Coins Today: <span id="todayTokensDisplay">0</span>/300</span><span>Bank: <span id="totalTokensDisplay">0</span> 🪙</span></div><div class="progress-container"><div id="progressBar"></div></div></div>
 </div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwx9F7u2KORPtpUWX2hylS02dxwd72Qv6x67pD22P0h17Lehis1AuLY4OOeQ3bn3jk/exec';
-
 let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0, lastDate: "", mathTotal: 0, spellTotal: 0 };
-let mode = "math", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [], questionsSinceMistake = 0;
+let mode = "math", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [], questionsSinceMistake = 0, isProcessing = false;
 let num1, num2, operator, correctAnswer, attempts = 0, currentInput = "", activeBoxIndex = 1, currentRevealedIndices = [], penaltyApplied = false;
-let isProcessing = false; 
-
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playCheer() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.frequency.setValueAtTime(500, 0); osc.frequency.exponentialRampToValueAtTime(1200, 0.1); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.2); }
 function playFart() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, 0); osc.frequency.linearRampToValueAtTime(40, 0.4); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.4); }
@@ -161,7 +100,8 @@ async function attemptLogin() {
             document.getElementById("loadingOverlay").style.display = "none";
             err.innerText = "Wrong name or PIN!"; 
         } else {
-            // LOAD DATA SECURELY
+            const today = new Date().toLocaleDateString('en-AU');
+            // STEP 1: LOAD ALL DATA BEFORE DOING ANYTHING ELSE
             user = { 
                 name, pin, ...data, 
                 history: parseInt(data.history) || 0,
@@ -170,22 +110,18 @@ async function attemptLogin() {
                 today: parseInt(data.today) || 0,
                 total: parseInt(data.total) || 0,
                 mathTotal: parseInt(data.mathTotal) || 0,
-                spellTotal: parseInt(data.spellTotal) || 0
+                spellTotal: parseInt(data.spellTotal) || 0,
+                lastDate: (data.lastDate || "").toString().trim()
             };
-            
-            const today = new Date().toLocaleDateString('en-AU'); 
-            
-            // RESET LOGIC: Only if the sheet date is different
-            if (user.lastDate && user.lastDate.trim() !== "" && user.lastDate !== today) {
-                user.math = 0;
-                user.spell = 0;
-                user.today = 0;
-                user.lastDate = today;
-                document.getElementById("loadingOverlay").querySelector(".loading-box").innerText = "New Day! Resetting Counters...";
+
+            // STEP 2: COMPARE DATES WITH CLEANED STRINGS
+            if (user.lastDate !== "" && user.lastDate !== today) {
+                document.getElementById("loadMsg").innerText = "New Day! Resetting Counters...";
+                user.math = 0; user.spell = 0; user.today = 0; user.lastDate = today;
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({...user, action: "sync"}) });
-            } else {
-                // Keep the numbers exactly as they are from the sheet
+            } else if (user.lastDate === "") {
                 user.lastDate = today;
+                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({...user, action: "sync"}) });
             }
 
             document.getElementById("loginScreen").style.display = "none";
@@ -209,111 +145,30 @@ async function updatePinPrompt() {
         if(result === "success") { alert("PIN Updated!"); location.reload(); }
     }
 }
-
-async function loadWords() {
-    const res = await fetch(`${SCRIPT_URL}?action=getWords`);
-    spellingWords = await res.json();
-    spellQueue = [...spellingWords].sort(() => Math.random() - 0.5);
-}
-
+async function loadWords() { const res = await fetch(`${SCRIPT_URL}?action=getWords`); spellingWords = await res.json(); spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); }
 async function sync() { fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({...user, action: "sync"}) }); }
-
-function createConfetti() {
-    for (let i = 0; i < 40; i++) {
-        const c = document.createElement('div'); c.className = 'confetti';
-        c.style.left = Math.random() * 100 + 'vw';
-        c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-        c.style.animation = `fall ${Math.random() * 1.5 + 1}s linear forwards`;
-        document.body.appendChild(c); setTimeout(() => c.remove(), 2500);
-    }
-}
-
+function createConfetti() { for (let i = 0; i < 40; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + 'vw'; c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; c.style.animation = `fall ${Math.random() * 1.5 + 1}s linear forwards`; document.body.appendChild(c); setTimeout(() => c.remove(), 2500); } }
 function toggleMode() { mode = (mode === "math") ? "spelling" : "math"; nextTask(); }
-
-function nextTask() {
-    attempts = 0; penaltyApplied = false; currentRevealedIndices = []; currentInput = "";
-    document.getElementById("message").innerText = ""; document.getElementById("visualAid").innerHTML = "";
-    document.getElementById("mathArea").style.display = (mode === "math") ? "block" : "none";
-    document.getElementById("spellingArea").style.display = (mode === "spelling") ? "block" : "none";
-    document.getElementById("numpad").style.display = (mode === "math") ? "block" : "none";
-    document.getElementById("spellpad").style.display = (mode === "spelling") ? "block" : "none";
-    if (mode === "math") generateMath(); else generateSpelling();
-}
-
-function keyPress(val) {
-    if (mode === "math") {
-        if (val === "DEL") currentInput = currentInput.slice(0, -1);
-        else if (currentInput.length < 4) currentInput += val;
-        document.getElementById("displayArea").innerText = currentInput || "?";
-    } else {
-        const grid = document.getElementById("letterGrid");
-        if (val === "DEL") { if (activeBoxIndex > 1) { activeBoxIndex--; grid.children[activeBoxIndex].innerText = ""; updateActiveBox(); } }
-        else { if (activeBoxIndex < currentWord.length - 1) { grid.children[activeBoxIndex].innerText = val; activeBoxIndex++; updateActiveBox(); } }
-    }
-}
-
-function updateActiveBox() {
-    const grid = document.getElementById("letterGrid");
-    Array.from(grid.children).forEach((box, i) => { box.style.borderColor = (i === activeBoxIndex && i < currentWord.length - 1) ? "#6c5ce7" : "#ddd"; });
-}
-
-function generateMath() {
-    const qCount = user.math + 1;
-    if (qCount <= 3) { operator = Math.random() > 0.5 ? "+" : "-"; num1 = Math.floor(Math.random() * 10) + 10; num2 = Math.floor(Math.random() * 6) + 1; }
-    else if (qCount <= 7) { 
-        const ops = ["+", "-", "*"]; operator = ops[Math.floor(Math.random() * 3)];
-        if (operator === "*") { num1 = Math.floor(Math.random() * 4) + 2; num2 = Math.floor(Math.random() * 4) + 2; }
-        else { num1 = Math.floor(Math.random() * 15) + 15; num2 = Math.floor(Math.random() * 10) + 5; }
-    } else { 
-        operator = Math.random() > 0.5 ? "*" : "/"; num2 = Math.floor(Math.random() * 4) + 6; let ans = Math.floor(Math.random() * 4) + 6;
-        if (operator === "*") num1 = ans; else num1 = num2 * ans;
-    }
-    if (operator === "-" && num2 > num1) [num1, num2] = [num2, num1];
-    correctAnswer = (operator === "+") ? num1 + num2 : (operator === "-") ? num1 - num2 : (operator === "*") ? num1 * num2 : num1 / num2;
-    document.getElementById("mathQuestion").innerText = `${num1} ${operator === '*' ? '×' : (operator === '/' ? '÷' : operator)} ${num2}`;
-    document.getElementById("displayArea").innerText = "?";
-}
-
-function generateSpelling() {
-    if (mistakeBuffer.length > 0 && questionsSinceMistake >= 4) { currentWord = mistakeBuffer.shift(); questionsSinceMistake = 0; }
-    else { if (spellQueue.length === 0) spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); currentWord = spellQueue.pop().toLowerCase(); questionsSinceMistake++; }
-    const grid = document.getElementById("letterGrid"); grid.innerHTML = ""; activeBoxIndex = 1;
-    for (let i = 0; i < currentWord.length; i++) {
-        const b = document.createElement("div"); b.className = "letter-box";
-        if (i === 0 || i === currentWord.length - 1) { b.innerText = currentWord[i]; b.style.background = "#f4f4f4"; }
-        grid.appendChild(b);
-    }
-    updateActiveBox(); setTimeout(sayWord, 400);
-}
-
+function nextTask() { attempts = 0; penaltyApplied = false; currentRevealedIndices = []; currentInput = ""; document.getElementById("message").innerText = ""; document.getElementById("visualAid").innerHTML = ""; document.getElementById("mathArea").style.display = (mode === "math") ? "block" : "none"; document.getElementById("spellingArea").style.display = (mode === "spelling") ? "block" : "none"; document.getElementById("numpad").style.display = (mode === "math") ? "block" : "none"; document.getElementById("spellpad").style.display = (mode === "spelling") ? "block" : "none"; if (mode === "math") generateMath(); else generateSpelling(); }
+function keyPress(val) { if (mode === "math") { if (val === "DEL") currentInput = currentInput.slice(0, -1); else if (currentInput.length < 4) currentInput += val; document.getElementById("displayArea").innerText = currentInput || "?"; } else { const grid = document.getElementById("letterGrid"); if (val === "DEL") { if (activeBoxIndex > 1) { activeBoxIndex--; grid.children[activeBoxIndex].innerText = ""; updateActiveBox(); } } else { if (activeBoxIndex < currentWord.length - 1) { grid.children[activeBoxIndex].innerText = val; activeBoxIndex++; updateActiveBox(); } } } }
+function updateActiveBox() { const grid = document.getElementById("letterGrid"); Array.from(grid.children).forEach((box, i) => { box.style.borderColor = (i === activeBoxIndex && i < currentWord.length - 1) ? "#6c5ce7" : "#ddd"; }); }
+function generateMath() { const qCount = user.math + 1; if (qCount <= 3) { operator = Math.random() > 0.5 ? "+" : "-"; num1 = Math.floor(Math.random() * 10) + 10; num2 = Math.floor(Math.random() * 6) + 1; } else if (qCount <= 7) { const ops = ["+", "-", "*"]; operator = ops[Math.floor(Math.random() * 3)]; if (operator === "*") { num1 = Math.floor(Math.random() * 4) + 2; num2 = Math.floor(Math.random() * 4) + 2; } else { num1 = Math.floor(Math.random() * 15) + 15; num2 = Math.floor(Math.random() * 10) + 5; } } else { operator = Math.random() > 0.5 ? "*" : "/"; num2 = Math.floor(Math.random() * 4) + 6; let ans = Math.floor(Math.random() * 4) + 6; if (operator === "*") num1 = ans; else num1 = num2 * ans; } if (operator === "-" && num2 > num1) [num1, num2] = [num2, num1]; correctAnswer = (operator === "+") ? num1 + num2 : (operator === "-") ? num1 - num2 : (operator === "*") ? num1 * num2 : num1 / num2; document.getElementById("mathQuestion").innerText = `${num1} ${operator === '*' ? '×' : (operator === '/' ? '÷' : operator)} ${num2}`; document.getElementById("displayArea").innerText = "?"; }
+function generateSpelling() { if (mistakeBuffer.length > 0 && questionsSinceMistake >= 4) { currentWord = mistakeBuffer.shift(); questionsSinceMistake = 0; } else { if (spellQueue.length === 0) spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); currentWord = spellQueue.pop().toLowerCase(); questionsSinceMistake++; } const grid = document.getElementById("letterGrid"); grid.innerHTML = ""; activeBoxIndex = 1; for (let i = 0; i < currentWord.length; i++) { const b = document.createElement("div"); b.className = "letter-box"; if (i === 0 || i === currentWord.length - 1) { b.innerText = currentWord[i]; b.style.background = "#f4f4f4"; } grid.appendChild(b); } updateActiveBox(); setTimeout(sayWord, 400); }
 function sayWord() { window.speechSynthesis.cancel(); let m = new SpeechSynthesisUtterance(currentWord); m.rate = 0.7; window.speechSynthesis.speak(m); }
-
 function checkAnswer() {
     if (isProcessing) return;
     let val = "";
-    if (mode === "math") {
-        val = currentInput.trim();
-        if (!val || val === "") return;
-    } else {
-        const grid = document.getElementById("letterGrid");
-        let filled = true;
-        for (let i = 1; i < currentWord.length - 1; i++) {
-            if (!grid.children[i].innerText || grid.children[i].innerText.trim() === "") { filled = false; break; }
-        }
-        if (!filled) return;
-        Array.from(grid.children).forEach(b => val += b.innerText);
-    }
+    if (mode === "math") { val = currentInput.trim(); if (!val) return; } 
+    else { const grid = document.getElementById("letterGrid"); let filled = true; for (let i = 1; i < currentWord.length - 1; i++) { if (!grid.children[i].innerText.trim()) { filled = false; break; } } if (!filled) return; Array.from(grid.children).forEach(b => val += b.innerText); }
     isProcessing = true;
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
     const limitReached = (mode === "math" ? user.math >= 10 : user.spell >= 20);
-
     if (isCorrect) {
         playCheer(); createConfetti();
         let r = 0; if (!limitReached && user.today < 300) { r = 10; if (mode === "math") { user.math++; user.mathTotal++; } else { user.spell++; user.spellTotal++; } }
         user.total += r; user.today += r; user.history++;
         document.getElementById("message").style.color = "green"; document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`;
-        sync(); updateScore(); 
-        setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
+        sync(); updateScore(); setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
     } else {
         attempts++; playFart(); 
         let qDetail = (mode === "math") ? document.getElementById("mathQuestion").innerText : currentWord;
@@ -322,58 +177,21 @@ function checkAnswer() {
         document.getElementById("message").style.color = "red"; document.getElementById("message").innerText = "-3 Tokens 💨";
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; }
         else { const g = document.getElementById("letterGrid"); Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); }
-        showHelp();
-        isProcessing = false; 
-        if (attempts >= 5) { 
-            isProcessing = true;
-            document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord}`; 
-            setTimeout(() => { isProcessing = false; nextTask(); }, 2500); 
-        }
+        showHelp(); isProcessing = false; 
+        if (attempts >= 5) { isProcessing = true; document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord}`; setTimeout(() => { isProcessing = false; nextTask(); }, 2500); }
     }
 }
-
 function showHelp() {
     const aid = document.getElementById("visualAid"); aid.innerHTML = "";
     if (mode === "math") {
-        if (operator === "+") {
-            const g1 = document.createElement("div"); g1.className = "ten-frame-grid"; for(let i=0;i<num1;i++){const d=document.createElement("div");d.className="dot";g1.appendChild(d);} aid.appendChild(g1);
-            const plus = document.createElement("div"); plus.innerText = "+"; aid.appendChild(plus);
-            const g2 = document.createElement("div"); g2.className = "ten-frame-grid"; for(let i=0;i<num2;i++){const d=document.createElement("div");d.className="dot secondary";g2.appendChild(d);} aid.appendChild(g2);
-        } else if (operator === "-") {
-            const g1 = document.createElement("div"); g1.className = "ten-frame-grid"; for(let i=0;i<num1;i++){const d=document.createElement("div");d.className=(i<num2)?"dot dim":"dot";g1.appendChild(d);} aid.appendChild(g1);
-        } else if (operator === "*") {
-            for(let r=0; r<num1; r++) { const row = document.createElement("div"); row.style.display="flex"; for(let c=0; c<num2; c++) { const d=document.createElement("div"); d.className="dot"; d.style.margin="1px"; row.appendChild(d); } aid.appendChild(row); }
-        } else if (operator === "/") {
-            for(let g=0; g<num2; g++) { const grp = document.createElement("div"); grp.className = "division-group"; for(let i=0; i<correctAnswer; i++) { const d = document.createElement("div"); d.className = "dot"; d.style.margin="1px"; grp.appendChild(d); } aid.appendChild(grp); }
-        }
-    } else {
-        let availableIndices = []; for(let i=1; i<currentWord.length-1; i++) { if(!currentRevealedIndices.includes(i)) availableIndices.push(i); }
-        if(availableIndices.length > 0) { let randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)]; currentRevealedIndices.push(randomIndex); }
-        let hint = ""; for(let i=0; i<currentWord.length; i++) { if (i === 0 || i === currentWord.length - 1 || currentRevealedIndices.includes(i)) { hint += currentWord[i] + " "; } else { hint += "_ "; } }
-        aid.innerHTML = `<p style='font-size:26px; color:#6c5ce7; font-weight:bold; margin:0; letter-spacing:4px;'>${hint.toLowerCase()}</p>`;
-    }
+        if (operator === "+") { const g1 = document.createElement("div"); g1.className = "ten-frame-grid"; for(let i=0;i<num1;i++){const d=document.createElement("div");d.className="dot";g1.appendChild(d);} aid.appendChild(g1); const plus = document.createElement("div"); plus.innerText = "+"; aid.appendChild(plus); const g2 = document.createElement("div"); g2.className = "ten-frame-grid"; for(let i=0;i<num2;i++){const d=document.createElement("div");d.className="dot secondary";g2.appendChild(d);} aid.appendChild(g2);
+        } else if (operator === "-") { const g1 = document.createElement("div"); g1.className = "ten-frame-grid"; for(let i=0;i<num1;i++){const d=document.createElement("div");d.className=(i<num2)?"dot dim":"dot";g1.appendChild(d);} aid.appendChild(g1);
+        } else if (operator === "*") { for(let r=0; r<num1; r++) { const row = document.createElement("div"); row.style.display="flex"; for(let c=0; c<num2; c++) { const d=document.createElement("div"); d.className="dot"; d.style.margin="1px"; row.appendChild(d); } aid.appendChild(row); }
+        } else if (operator === "/") { for(let g=0; g<num2; g++) { const grp = document.createElement("div"); grp.className = "division-group"; for(let i=0; i<correctAnswer; i++) { const d = document.createElement("div"); d.className = "dot"; d.style.margin="1px"; grp.appendChild(d); } aid.appendChild(grp); } }
+    } else { let hint = ""; for(let i=0; i<currentWord.length; i++) { if (i === 0 || i === currentWord.length - 1 || currentRevealedIndices.includes(i)) hint += currentWord[i] + " "; else hint += "_ "; } aid.innerHTML = `<p style='font-size:26px; color:#6c5ce7; font-weight:bold; margin:0; letter-spacing:4px;'>${hint.toLowerCase()}</p>`; }
 }
-
-function updateScore() {
-    document.getElementById("mathTDisplay").innerText = user.math; 
-    document.getElementById("mathTotalDisplay").innerText = user.mathTotal || 0;
-    document.getElementById("spellTDisplay").innerText = user.spell; 
-    document.getElementById("spellTotalDisplay").innerText = user.spellTotal || 0;
-    document.getElementById("todayTokensDisplay").innerText = user.today; 
-    document.getElementById("totalTokensDisplay").innerText = user.total;
-    document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%";
-}
-
-function resetPrompt() {
-    let b = Math.floor(Math.random()*4)+11;
-    if (prompt(`Admin: ${b}x${b}?`) == b*b) {
-        let c = prompt("1: Reset Today\n2: Reset Total\n3: Errors");
-        if(c=="1") { user.math=0; user.spell=0; user.today=0; }
-        else if(c=="2") { user.total=0; user.math=0; user.spell=0; user.today=0; user.mathTotal=0; user.spellTotal=0; }
-        else if(c=="3") { alert(user.logs || "None"); user.logs = ""; }
-        sync(); updateScore();
-    }
-}
+function updateScore() { document.getElementById("mathTDisplay").innerText = user.math; document.getElementById("mathTotalDisplay").innerText = user.mathTotal || 0; document.getElementById("spellTDisplay").innerText = user.spell; document.getElementById("spellTotalDisplay").innerText = user.spellTotal || 0; document.getElementById("todayTokensDisplay").innerText = user.today; document.getElementById("totalTokensDisplay").innerText = user.total; document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%"; }
+function resetPrompt() { let b = Math.floor(Math.random()*4)+11; if (prompt(`Admin: ${b}x${b}?`) == b*b) { let c = prompt("1: Reset Today\n2: Reset Total\n3: Errors"); if(c=="1") { user.math=0; user.spell=0; user.today=0; } else if(c=="2") { user.total=0; user.math=0; user.spell=0; user.today=0; user.mathTotal=0; user.spellTotal=0; } else if(c=="3") { alert(user.logs || "None"); user.logs = ""; } sync(); updateScore(); } }
 </script>
 </body>
 </html>
