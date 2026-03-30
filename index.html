@@ -1,42 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.25</title>
+  <title>Melorin Clubhouse 5.26</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card-inner: #6c5ce7; --text-light: #ffffff; --text-dark: #2d3436; --key-bg: #ffffff; --key-shadow: #dfe6e9; }
     body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: var(--bg); margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; touch-action: manipulation; }
     #mainWrapper { width: 95%; max-width: 440px; height: 92vh; display: flex; flex-direction: column; position: relative; background: var(--card-inner); border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); overflow: hidden; }
+    
     #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; color: white; }
     .loading-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid var(--primary); font-weight: 900; font-size: 20px; text-align: center; color: var(--primary); }
+    
     #loginScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2500; color: white; }
     #loginScreen input { margin: 10px; padding: 18px; border-radius: 15px; border: none; font-size: 18px; width: 250px; text-align: center; outline: none; }
     #loginScreen button { background: #4CAF50; color: white; padding: 16px 32px; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; font-size: 18px; }
+
     .top-section { padding: 15px; height: 60%; display: flex; flex-direction: column; box-sizing: border-box; color: white; }
     .top-stats { background: rgba(255,255,255,0.15); padding: 10px; border-radius: 18px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2); }
     .stat-row { display: flex; justify-content: space-between; font-size: 12px; font-weight: 900; color: white; }
     .stat-row b { color: #ffeaa7; font-size: 14px; }
     .mode-btns { display: flex; flex-direction: column; gap: 5px; align-items: center; margin-top: 5px; }
     #modeBtn, #leadBtn { background: #ffffff; color: var(--primary); border: none; border-radius: 10px; font-size: 10px; font-weight: 900; padding: 6px 14px; cursor: pointer; text-transform: uppercase; width: 130px; }
+
+    /* LEADERBOARD VIEW */
+    #leaderboardView { display: none; flex-grow: 1; overflow-y: auto; padding: 10px; color: white; text-align: center; }
+    .lead-cat { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 10px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+    .lead-cat h3 { margin: 0 0 8px 0; font-size: 16px; color: #ffeaa7; text-transform: uppercase; letter-spacing: 1px; }
+    .lead-item { display: flex; justify-content: space-between; padding: 4px 10px; font-size: 14px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .lead-item:last-child { border: none; }
+
     .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     .question { font-size: 44px; font-weight: 900; color: white; margin-bottom: 5px; width: 100%; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     #displayArea { font-size: 36px; font-weight: 900; color: #55efc4; min-height: 40px; border-bottom: 3px dashed rgba(255,255,255,0.4); min-width: 70px; text-align: center; }
+    
     .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 4px; margin: 15px 0; width: 100%; }
     .letter-box { width: 34px; height: 44px; font-size: 24px; text-align: center; border: 2.5px solid rgba(255,255,255,0.3); border-radius: 8px; text-transform: lowercase; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); color: white; }
     .letter-box.active { border-color: white; background: rgba(255,255,255,0.3); }
-    #helpArea { background: rgba(255,255,255,0.95); border-radius: 18px; padding: 10px; min-height: 90px; display: none; align-items: center; justify-content: center; flex-direction: column; margin: 0 10px; overflow-x: auto; }
+
     #keyboardArea { height: 28%; background: #f1f2f6; padding: 6px; display: flex; flex-direction: column; justify-content: space-between; border-top: 1px solid #ddd; }
     .kb-row { display: flex; justify-content: center; gap: 3px; width: 100%; }
     .key { background: var(--key-bg); border-radius: 6px; padding: 10px 0; font-size: 18px; font-weight: 900; flex: 1; max-width: 38px; border: none; box-shadow: 0 3px 0 var(--key-shadow); color: var(--text-dark); }
     .key:active { transform: translateY(2px); box-shadow: none; }
-    .row-2 { padding: 0 5%; }
-    .row-3 { padding: 0 2%; }
     .key.action { background: #4CAF50; color: white; box-shadow: 0 3px 0 #2d7031; max-width: 65px; }
     .key.del { background: #ff7675; color: white; box-shadow: 0 3px 0 #d63031; max-width: 65px; }
-    .bottom-info { height: 12%; padding: 5px 25px; display: flex; flex-direction: column; justify-content: center; background: white; }
+
+    .bottom-info { height: 12%; padding: 5px 25px; display: flex; flex-direction: column; justify-content: center; background: white; border-top: 1px solid #eee; }
     .progress-container { width: 100%; height: 12px; background: #f1f2f6; border-radius: 6px; overflow: hidden; margin-top: 4px; }
     #progressBar { height: 100%; width: 0%; background: linear-gradient(90deg, #4CAF50, #00b894); transition: width 0.6s ease; }
     #message { font-weight: 900; height: 20px; font-size: 18px; margin-bottom: 2px; }
+
     .ten-frame-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
     .dot { width: 11px; height: 11px; border-radius: 50%; background: #0984e3; }
     .dot.secondary { background: #d63031; }
@@ -61,6 +73,7 @@
     </div>
     <p id="loginError" style="font-size:14px; margin-top:15px; color:#ffeaa7; font-weight:900;"></p>
   </div>
+
   <div class="top-section" id="appContent" style="display:none;">
     <button onclick="resetPrompt()" style="position:absolute; top:8px; left:8px; opacity:0.4; border:none; background:none; font-size:18px; color:white;">⚙️</button>
     <div class="top-stats">
@@ -68,15 +81,26 @@
       <div class="stat-row"><span>Spell Today: <b><span id="spellTDisplay">0</span>/20</b></span><span>Spell Total: <b><span id="spellTotalDisplay">0</span></b></span></div>
       <div class="mode-btns">
         <button id="modeBtn" onclick="toggleMode()">Switch Game</button>
-        <button id="leadBtn" onclick="showLeaderboard()">🏆 Leaderboard</button>
+        <button id="leadBtn" onclick="toggleLeaderboard()">🏆 Leaders</button>
       </div>
     </div>
-    <div class="question-area">
+
+    <div class="question-area" id="gameView">
       <div id="mathArea"><div class="question" id="mathQuestion"></div><div id="displayArea">?</div></div>
-      <div id="spellingArea" style="display:none; width:100%; text-align:center;"><button onclick="sayWord()" style="background:white; border:none; border-radius:50%; width:50px; height:50px; color:var(--primary); margin-bottom:12px; cursor:pointer; font-size:22px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">🔊</button><div id="letterGrid" class="letter-grid"></div></div>
+      <div id="spellingArea" style="display:none; width:100%; text-align:center;">
+        <button onclick="sayWord()" style="background:white; border:none; border-radius:50%; width:50px; height:50px; color:var(--primary); margin-bottom:12px; cursor:pointer; font-size:22px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">🔊</button>
+        <div id="letterGrid" class="letter-grid"></div>
+      </div>
     </div>
-    <div id="helpArea"></div>
+
+    <div id="leaderboardView">
+      <div id="leadContainer"></div>
+      <button onclick="toggleLeaderboard()" style="background:#4CAF50; color:white; border:none; border-radius:10px; padding:10px 20px; font-weight:900; margin-top:10px; width:100%;">BACK TO GAME</button>
+    </div>
+
+    <div id="helpArea" style="display:none;"></div>
   </div>
+
   <div id="keyboardArea" style="display:none;">
     <div id="numpad" style="display:none; width: 100%;">
       <div class="kb-row"><button class="key" onclick="keyPress('1')">1</button><button class="key" onclick="keyPress('2')">2</button><button class="key" onclick="keyPress('3')">3</button></div>
@@ -85,11 +109,12 @@
       <div class="kb-row"><button class="key del" onclick="keyPress('DEL')">⌫</button><button class="key" onclick="keyPress('0')">0</button><button class="key action" onclick="checkAnswer()">OK</button></div>
     </div>
     <div id="spellpad" style="display:none; width: 100%;">
-      <div class="kb-row row-1"><button class="key" onclick="keyPress('q')">q</button><button class="key" onclick="keyPress('w')">w</button><button class="key" onclick="keyPress('e')">e</button><button class="key" onclick="keyPress('r')">r</button><button class="key" onclick="keyPress('t')">t</button><button class="key" onclick="keyPress('y')">y</button><button class="key" onclick="keyPress('u')">u</button><button class="key" onclick="keyPress('i')">i</button><button class="key" onclick="keyPress('o')">o</button><button class="key" onclick="keyPress('p')">p</button></div>
+      <div class="kb-row"><button class="key" onclick="keyPress('q')">q</button><button class="key" onclick="keyPress('w')">w</button><button class="key" onclick="keyPress('e')">e</button><button class="key" onclick="keyPress('r')">r</button><button class="key" onclick="keyPress('t')">t</button><button class="key" onclick="keyPress('y')">y</button><button class="key" onclick="keyPress('u')">u</button><button class="key" onclick="keyPress('i')">i</button><button class="key" onclick="keyPress('o')">o</button><button class="key" onclick="keyPress('p')">p</button></div>
       <div class="kb-row row-2"><button class="key" onclick="keyPress('a')">a</button><button class="key" onclick="keyPress('s')">s</button><button class="key" onclick="keyPress('d')">d</button><button class="key" onclick="keyPress('f')">f</button><button class="key" onclick="keyPress('g')">g</button><button class="key" onclick="keyPress('h')">h</button><button class="key" onclick="keyPress('j')">j</button><button class="key" onclick="keyPress('k')">k</button><button class="key" onclick="keyPress('l')">l</button></div>
       <div class="kb-row row-3"><button class="key del" onclick="keyPress('DEL')">⌫</button><button class="key" onclick="keyPress('z')">z</button><button class="key" onclick="keyPress('x')">x</button><button class="key" onclick="keyPress('c')">c</button><button class="key" onclick="keyPress('v')">v</button><button class="key" onclick="keyPress('b')">b</button><button class="key" onclick="keyPress('n')">n</button><button class="key" onclick="keyPress('m')">m</button><button class="key action" onclick="checkAnswer()">OK</button></div>
     </div>
   </div>
+
   <div class="bottom-info" id="tokenFooter" style="display:none;"><p id="message"></p><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:900; color: #636e72;"><span>Today: <span id="todayTokensDisplay">0</span>/300</span><span>Bank: <span id="totalTokensDisplay">0</span> 🪙</span></div><div class="progress-container"><div id="progressBar"></div></div></div>
 </div>
 
@@ -101,7 +126,6 @@ let num1, num2, operator, correctAnswer, attempts = 0, currentInput = "", active
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
-
 function playCheer() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.frequency.setValueAtTime(500, 0); osc.frequency.exponentialRampToValueAtTime(1200, 0.1); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.2); }
 function playFart() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, 0); osc.frequency.linearRampToValueAtTime(40, 0.4); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.4); }
 
@@ -130,46 +154,48 @@ async function attemptLogin() {
     } catch(e) { document.getElementById("loadingOverlay").style.display = "none"; document.getElementById("loginError").innerText = "Connection Error"; }
 }
 
-async function showLeaderboard() {
-    try {
-        const res = await fetch(`${SCRIPT_URL}?action=getLeaderboard`);
-        const leaders = await res.json();
-        
-        let bankTop = [...leaders].sort((a,b) => b.total - a.total).slice(0,3);
-        let spellTop = [...leaders].sort((a,b) => b.spellTotal - a.spellTotal).slice(0,3);
-        let mathTop = [...leaders].sort((a,b) => b.mathTotal - a.mathTotal).slice(0,3);
+async function toggleLeaderboard() {
+    const gView = document.getElementById("gameView");
+    const lView = document.getElementById("leaderboardView");
+    const kArea = document.getElementById("keyboardArea");
 
-        let finalMsg = "🏆 THE CLUBHOUSE LEADERS 🏆\n\n";
+    if (lView.style.display === "flex") {
+        lView.style.display = "none";
+        gView.style.display = "flex";
+        kArea.style.display = "flex";
+    } else {
+        gView.style.display = "none";
+        kArea.style.display = "none";
+        lView.style.display = "flex";
+        lView.style.flexDirection = "column";
         
-        finalMsg += "💰 BANK (Total Coins)\n";
-        bankTop.forEach((u, i) => finalMsg += `${i+1}. ${capitalize(u.name)} (${u.total})\n`);
-        
-        finalMsg += "\n📖 SPELLING STARS\n";
-        spellTop.forEach((u, i) => finalMsg += `${i+1}. ${capitalize(u.name)} (${u.spellTotal})\n`);
-        
-        finalMsg += "\n🔢 MATH MASTERS\n";
-        mathTop.forEach((u, i) => finalMsg += `${i+1}. ${capitalize(u.name)} (${u.mathTotal})\n`);
-
-        alert(finalMsg);
-    } catch(e) { alert("Could not load Leaderboard"); }
-}
-
-async function updatePinPrompt() {
-    const name = capitalize(document.getElementById("loginName").value.trim());
-    const oldPin = document.getElementById("loginPin").value.trim();
-    if(!name || !oldPin) return alert("Enter Name and PIN");
-    const newPin = prompt("Enter new 4-digit PIN:");
-    if(newPin && newPin.length === 4) {
-        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ name, oldPin, newPin, action: "updatePin" }) });
-        const result = await res.text();
-        if(result === "success") { alert("PIN Updated!"); location.reload(); }
+        document.getElementById("leadContainer").innerHTML = "<p>Loading Trophy Room...</p>";
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getLeaderboard`);
+            const leaders = await res.json();
+            renderLeaderboard(leaders);
+        } catch(e) { document.getElementById("leadContainer").innerHTML = "Error loading leaders."; }
     }
 }
+
+function renderLeaderboard(data) {
+    const bank = [...data].sort((a,b) => b.total - a.total).slice(0,5);
+    const spell = [...data].sort((a,b) => b.spellTotal - a.spellTotal).slice(0,5);
+    const math = [...data].sort((a,b) => b.mathTotal - a.mathTotal).slice(0,5);
+
+    let html = `
+        <div class="lead-cat"><h3>💰 Bank Leaders</h3>${bank.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.total}</span></div>`).join('')}</div>
+        <div class="lead-cat"><h3>📖 Spelling Stars</h3>${spell.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.spellTotal}</span></div>`).join('')}</div>
+        <div class="lead-cat"><h3>🔢 Math Masters</h3>${math.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.mathTotal}</span></div>`).join('')}</div>
+    `;
+    document.getElementById("leadContainer").innerHTML = html;
+}
+
+function updateScore() { document.getElementById("mathTDisplay").innerText = user.math; document.getElementById("mathTotalDisplay").innerText = user.mathTotal || 0; document.getElementById("spellTDisplay").innerText = user.spell; document.getElementById("spellTotalDisplay").innerText = user.spellTotal || 0; document.getElementById("todayTokensDisplay").innerText = user.today; document.getElementById("totalTokensDisplay").innerText = user.total; document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%"; }
 async function loadWords() { const res = await fetch(`${SCRIPT_URL}?action=getWords`); spellingWords = await res.json(); spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); }
 async function sync() { fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({...user, action: "sync"}) }); }
-function createConfetti() { for (let i = 0; i < 40; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + 'vw'; c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; c.style.animation = `fall ${Math.random() * 1.5 + 1}s linear forwards`; document.body.appendChild(c); setTimeout(() => c.remove(), 2500); } }
 function toggleMode() { mode = (mode === "math") ? "spelling" : "math"; nextTask(); }
-function nextTask() { attempts = 0; penaltyApplied = false; currentRevealedIndices = []; currentInput = ""; document.getElementById("message").innerText = ""; document.getElementById("mathArea").style.display = (mode === "math") ? "block" : "none"; document.getElementById("spellingArea").style.display = (mode === "spelling") ? "block" : "none"; document.getElementById("numpad").style.display = (mode === "math") ? "block" : "none"; document.getElementById("spellpad").style.display = (mode === "spelling") ? "block" : "none"; document.getElementById("helpArea").style.display = (mode === "math") ? "flex" : "none"; if (mode === "math") generateMath(); else generateSpelling(); }
+function nextTask() { attempts = 0; penaltyApplied = false; currentRevealedIndices = []; currentInput = ""; document.getElementById("message").innerText = ""; document.getElementById("mathArea").style.display = (mode === "math") ? "block" : "none"; document.getElementById("spellingArea").style.display = (mode === "spelling") ? "block" : "none"; document.getElementById("numpad").style.display = (mode === "math") ? "block" : "none"; document.getElementById("spellpad").style.display = (mode === "spelling") ? "block" : "none"; document.getElementById("helpArea").style.display = "none"; if (mode === "math") generateMath(); else generateSpelling(); }
 
 function keyPress(val) {
     if (mode === "math") {
@@ -195,26 +221,15 @@ function keyPress(val) {
         }
     }
 }
-function updateActiveBox() { 
-    const grid = document.getElementById("letterGrid"); 
-    Array.from(grid.children).forEach((box, i) => { 
-        box.style.borderColor = (i === activeBoxIndex && i < currentWord.length - 1) ? "white" : "rgba(255,255,255,0.3)";
-    }); 
-}
-function generateMath() { const qCount = user.math + 1; if (qCount <= 3) { operator = Math.random() > 0.5 ? "+" : "-"; num1 = Math.floor(Math.random() * 10) + 10; num2 = Math.floor(Math.random() * 6) + 1; } else if (qCount <= 7) { const ops = ["+", "-", "*"]; operator = ops[Math.floor(Math.random() * 3)]; if (operator === "*") { num1 = Math.floor(Math.random() * 4) + 2; num2 = Math.floor(Math.random() * 4) + 2; } else { num1 = Math.floor(Math.random() * 15) + 15; num2 = Math.floor(Math.random() * 10) + 5; } } else { operator = Math.random() > 0.5 ? "*" : "/"; num2 = Math.floor(Math.random() * 4) + 6; let ans = Math.floor(Math.random() * 4) + 6; if (operator === "*") num1 = ans; else num1 = num2 * ans; } if (operator === "-" && num2 > num1) [num1, num2] = [num2, num1]; correctAnswer = (operator === "+") ? num1 + num2 : (operator === "-") ? num1 - num2 : (operator === "*") ? num1 * num2 : num1 / num2; document.getElementById("mathQuestion").innerText = `${num1} ${operator === '*' ? '×' : (operator === '/' ? '÷' : operator)} ${num2}`; document.getElementById("displayArea").innerText = "?"; document.getElementById("helpArea").innerHTML = ""; }
+function updateActiveBox() { const grid = document.getElementById("letterGrid"); Array.from(grid.children).forEach((box, i) => { box.style.borderColor = (i === activeBoxIndex && i < currentWord.length - 1) ? "white" : "rgba(255,255,255,0.3)"; }); }
+function generateMath() { const qCount = user.math + 1; if (qCount <= 3) { operator = Math.random() > 0.5 ? "+" : "-"; num1 = Math.floor(Math.random() * 10) + 10; num2 = Math.floor(Math.random() * 6) + 1; } else if (qCount <= 7) { const ops = ["+", "-", "*"]; operator = ops[Math.floor(Math.random() * 3)]; if (operator === "*") { num1 = Math.floor(Math.random() * 4) + 2; num2 = Math.floor(Math.random() * 4) + 2; } else { num1 = Math.floor(Math.random() * 15) + 15; num2 = Math.floor(Math.random() * 10) + 5; } } else { operator = Math.random() > 0.5 ? "*" : "/"; num2 = Math.floor(Math.random() * 4) + 6; let ans = Math.floor(Math.random() * 4) + 6; if (operator === "*") num1 = ans; else num1 = num2 * ans; } if (operator === "-" && num2 > num1) [num1, num2] = [num2, num1]; correctAnswer = (operator === "+") ? num1 + num2 : (operator === "-") ? num1 - num2 : (operator === "*") ? num1 * num2 : num1 / num2; document.getElementById("mathQuestion").innerText = `${num1} ${operator === '*' ? '×' : (operator === '/' ? '÷' : operator)} ${num2}`; document.getElementById("displayArea").innerText = "?"; }
 function generateSpelling() { if (mistakeBuffer.length > 0 && questionsSinceMistake >= 4) { currentWord = mistakeBuffer.shift(); questionsSinceMistake = 0; } else { if (spellQueue.length === 0) spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); currentWord = spellQueue.pop().toLowerCase(); questionsSinceMistake++; } const grid = document.getElementById("letterGrid"); grid.innerHTML = ""; activeBoxIndex = 1; for (let i = 0; i < currentWord.length; i++) { const b = document.createElement("div"); b.className = "letter-box"; if (i === 0 || i === currentWord.length - 1) { b.innerText = currentWord[i]; b.style.background = "rgba(255,255,255,0.2)"; } grid.appendChild(b); } updateActiveBox(); setTimeout(sayWord, 400); }
 function sayWord() { window.speechSynthesis.cancel(); let m = new SpeechSynthesisUtterance(currentWord); m.rate = 0.7; window.speechSynthesis.speak(m); }
-
 function checkAnswer() {
     if (isProcessing) return;
     let val = "";
     if (mode === "math") { val = currentInput.trim(); if (!val) return; } 
-    else { 
-        const grid = document.getElementById("letterGrid"); let filled = true; 
-        for (let i = 1; i < currentWord.length - 1; i++) { if (!grid.children[i].innerText.trim()) { filled = false; break; } } 
-        if (!filled) { document.getElementById("message").style.color = "#ffeaa7"; document.getElementById("message").innerText = "Fill all letters! ✍️"; return; }
-        Array.from(grid.children).forEach(b => val += b.innerText); 
-    }
+    else { const grid = document.getElementById("letterGrid"); let filled = true; for (let i = 1; i < currentWord.length - 1; i++) { if (!grid.children[i].innerText.trim()) { filled = false; break; } } if (!filled) { document.getElementById("message").style.color = "#ffeaa7"; document.getElementById("message").innerText = "Fill all letters! ✍️"; return; } Array.from(grid.children).forEach(b => val += b.innerText); }
     isProcessing = true;
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
     const limitReached = (mode === "math" ? user.math >= 10 : user.spell >= 20);
@@ -248,9 +263,8 @@ function checkAnswer() {
         if (attempts >= 5) { isProcessing = true; document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord}`; setTimeout(() => { isProcessing = false; nextTask(); }, 2500); }
     }
 }
-
 function showMathHelp() {
-    const aid = document.getElementById("helpArea"); aid.innerHTML = "";
+    const aid = document.getElementById("helpArea"); aid.innerHTML = ""; aid.style.display = "flex";
     if (operator === "+" || operator === "-") {
         const container = document.createElement("div");
         const row1 = document.createElement("div"); row1.className = "ten-frame-grid";
@@ -274,7 +288,7 @@ function showMathHelp() {
         aid.appendChild(row);
     }
 }
-function updateScore() { document.getElementById("mathTDisplay").innerText = user.math; document.getElementById("mathTotalDisplay").innerText = user.mathTotal || 0; document.getElementById("spellTDisplay").innerText = user.spell; document.getElementById("spellTotalDisplay").innerText = user.spellTotal || 0; document.getElementById("todayTokensDisplay").innerText = user.today; document.getElementById("totalTokensDisplay").innerText = user.total; document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%"; }
+function createConfetti() { for (let i = 0; i < 40; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + 'vw'; c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; c.style.animation = `fall ${Math.random() * 1.5 + 1}s linear forwards`; document.body.appendChild(c); setTimeout(() => c.remove(), 2500); } }
 function resetPrompt() { let b = Math.floor(Math.random()*4)+11; if (prompt(`Admin: ${b}x${b}?`) == b*b) { let c = prompt("1: Reset Today\n2: Reset Total\n3: Errors"); if(c=="1") { user.math=0; user.spell=0; user.today=0; } else if(c=="2") { user.total=0; user.math=0; user.spell=0; user.today=0; user.mathTotal=0; user.spellTotal=0; } else if(c=="3") { alert(user.logs || "None"); user.logs = ""; } sync(); updateScore(); } }
 </script>
 </body>
