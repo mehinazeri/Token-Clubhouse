@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.10</title>
+  <title>Melorin Clubhouse 5.11</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card: #ffffff; --accent: #ede7f6; }
@@ -142,6 +142,7 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwx9F7u2KORPtpUWX2hy
 let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0, lastDate: "", mathTotal: 0, spellTotal: 0 };
 let mode = "math", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [], questionsSinceMistake = 0;
 let num1, num2, operator, correctAnswer, attempts = 0, currentInput = "", activeBoxIndex = 1, currentRevealedIndices = [], penaltyApplied = false;
+let isProcessing = false; 
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playCheer() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.frequency.setValueAtTime(500, 0); osc.frequency.exponentialRampToValueAtTime(1200, 0.1); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.2); }
@@ -160,33 +161,30 @@ async function attemptLogin() {
             document.getElementById("loadingOverlay").style.display = "none";
             err.innerText = "Wrong name or PIN!"; 
         } else {
-            const today = new Date().toLocaleDateString('en-AU'); // Force Sydney Date Format
-console.log("Sheet Date:", user.lastDate, "Today:", today);
+            // Assign data FIRST
+            user = { name, pin, ...data, history: parseInt(data.history) || 0 };
+            
+            const today = new Date().toLocaleDateString('en-AU'); 
+            
+            // RESET LOGIC: Only if the sheet date exists AND is different from today
+            if (user.lastDate && user.lastDate.trim() !== "" && user.lastDate !== today) {
+                user.math = 0;
+                user.spell = 0;
+                user.today = 0;
+                user.lastDate = today;
+                
+                document.getElementById("loadingOverlay").querySelector(".loading-box").innerText = "New Day! Resetting Counters...";
+                
+                await fetch(SCRIPT_URL, { 
+                    method: "POST", 
+                    mode: "no-cors", 
+                    body: JSON.stringify({...user, action: "sync"}) 
+                });
+            } else if (!user.lastDate || user.lastDate.trim() === "") {
+                user.lastDate = today;
+                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({...user, action: "sync"}) });
+            }
 
-const today = new Date().toLocaleDateString('en-AU'); // Force Sydney Date Format
-console.log("Sheet Date:", user.lastDate, "Today:", today);
-
-// RESET LOGIC: Only if the sheet date exists AND is different from today
-if (user.lastDate && user.lastDate.trim() !== "" && user.lastDate !== today) {
-    user.math = 0;
-    user.spell = 0;
-    user.today = 0;
-    user.lastDate = today;
-    
-    // Notify the user
-    document.getElementById("loadingOverlay").querySelector(".loading-box").innerText = "New Day! Resetting Counters...";
-    
-    // Sync immediately and WAIT for the sheet to confirm save
-    await fetch(SCRIPT_URL, { 
-        method: "POST", 
-        mode: "no-cors", // Prevents browser blocking the save
-        body: JSON.stringify({...user, action: "sync"}) 
-    });
-} else if (!user.lastDate || user.lastDate.trim() === "") {
-    // If date is missing (first time ever), set it to today but DON'T reset points
-    user.lastDate = today;
-    await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({...user, action: "sync"}) });
-}
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("loadingOverlay").style.display = "none";
             document.getElementById("appContent").style.display = "flex";
@@ -287,12 +285,7 @@ function generateSpelling() {
 
 function sayWord() { window.speechSynthesis.cancel(); let m = new SpeechSynthesisUtterance(currentWord); m.rate = 0.7; window.speechSynthesis.speak(m); }
 
-// 1. Add this at the top with your other variables
-let isProcessing = false; 
-
-// 2. Update your checkAnswer function like this:
 function checkAnswer() {
-    // IF WE ARE ALREADY PROCESSING A CLICK, STOP HERE!
     if (isProcessing) return;
 
     let val = "";
@@ -309,7 +302,6 @@ function checkAnswer() {
         Array.from(grid.children).forEach(b => val += b.innerText);
     }
 
-    // LOCK THE BUTTON NOW
     isProcessing = true;
 
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
@@ -322,7 +314,6 @@ function checkAnswer() {
         document.getElementById("message").style.color = "green"; document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`;
         sync(); updateScore(); 
         
-        // UNLOCK ONLY AFTER THE DELAY (When the next question appears)
         setTimeout(() => { 
             isProcessing = false; 
             nextTask(); 
@@ -330,21 +321,22 @@ function checkAnswer() {
 
     } else {
         attempts++; playFart(); 
+        
+        // CLEAN LOG: [Time] Question => WrongInput
+        let qDetail = (mode === "math") ? document.getElementById("mathQuestion").innerText : currentWord;
+        user.logs += `[${new Date().toLocaleTimeString()}] ${qDetail} => ${val}\n`;
+
         if (!penaltyApplied && !limitReached) { user.today = Math.max(0, user.today - 3); penaltyApplied = true; sync(); updateScore(); }
-let qDetail = (mode === "math") ? document.getElementById("mathQuestion").innerText : currentWord;
-user.logs += `[${new Date().toLocaleTimeString()}] ${qDetail} => ${val}\n`;
         document.getElementById("message").style.color = "red"; document.getElementById("message").innerText = "-3 Tokens 💨";
         
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; }
         else { const g = document.getElementById("letterGrid"); Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); }
         
         showHelp();
-        
-        // UNLOCK IMMEDIATELY ON WRONG ANSWER SO SHE CAN TRY AGAIN
         isProcessing = false; 
 
         if (attempts >= 5) { 
-            isProcessing = true; // Lock again during the long 2.5s display
+            isProcessing = true;
             document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord}`; 
             setTimeout(() => { 
                 isProcessing = false; 
