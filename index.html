@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.36</title>
+  <title>Melorin Clubhouse 5.38</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="apple-touch-icon" href="icon.png">
   <style>
@@ -19,7 +19,6 @@
 
     .top-section { padding: 10px 15px; height: 62%; display: flex; flex-direction: column; box-sizing: border-box; color: white; position: relative; }
     
-    /* Button Placements */
     #adminBtn { position: absolute; top: 10px; left: 15px; background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.5; color: white; }
     #exitBtn { position: absolute; top: 10px; right: 15px; background: #ff7675; color: white; border: none; border-radius: 8px; padding: 5px 12px; font-size: 10px; font-weight: 900; cursor: pointer; z-index: 20; }
 
@@ -39,10 +38,9 @@
     .question { font-size: 44px; font-weight: 900; color: white; margin-bottom: 5px; width: 100%; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     #displayArea { font-size: 36px; font-weight: 900; color: #55efc4; min-height: 40px; border-bottom: 3px dashed rgba(255,255,255,0.4); min-width: 70px; text-align: center; }
     
-    .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 4px; margin: 10px 0; width: 100%; }
+    .letter-grid { display: flex !important; flex-direction: row !important; justify(content: center; gap: 4px; margin: 10px 0; width: 100%; }
     .letter-box { width: 34px; height: 44px; font-size: 24px; text-align: center; border: 2.5px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); color: white; }
     .letter-box.active { border-color: #55efc4 !important; background: rgba(85, 239, 196, 0.2) !important; }
-    .letter-box.hint { color: #ffeaa7 !important; opacity: 0.5; }
 
     #keyboardArea { height: 28%; background: #f1f2f6; padding: 6px; display: flex; flex-direction: column; justify-content: space-between; border-top: 1px solid #ddd; }
     .kb-row { display: flex; justify-content: center; gap: 3px; width: 100%; }
@@ -70,7 +68,7 @@
 <div id="mainWrapper">
   <div id="loadingOverlay"><div class="loading-box" id="loadMsg">Connecting...</div></div>
   <div id="loginScreen">
-    <h1 style="font-weight:900;">Melorin Clubhouse 🪙</h1>
+    <h1 style="font-weight:900;">Melorin Clubhouse </h1>
     <input type="text" id="loginName" placeholder="Name">
     <input type="password" id="loginPin" placeholder="PIN" maxlength="4">
     <div class="login-btns">
@@ -123,7 +121,7 @@
     </div>
   </div>
 
-  <div class="bottom-info" id="tokenFooter" style="display:none;"><p id="message"></p><div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900; color: #636e72;"><span>Today: <span id="todayTokensDisplay">0</span>/300</span><span>Bank: <span id="totalTokensDisplay">0</span> 🪙</span></div><div class="progress-container"><div id="progressBar"></div></div></div>
+  <div class="bottom-info" id="tokenFooter" style="display:none;"><p id="message"></p><div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900; color: #636e72;"><span>Today: <span id="todayTokensDisplay">0</span>/300</span><span>Bank: <span id="totalTokensDisplay">0</span> </span></div><div class="progress-container"><div id="progressBar"></div></div></div>
 </div>
 
 <script>
@@ -190,7 +188,7 @@ function renderLeaderboard(data) {
     const s = [...data].sort((x,y) => y.spellTotal - x.spellTotal).slice(0,5);
     const m = [...data].sort((x,y) => y.mathTotal - x.mathTotal).slice(0,5);
     document.getElementById("leadContainer").innerHTML = `
-        <div class="lead-cat"><h3>💰 BANK TOP 5</h3>${b.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.total}</span></div>`).join('')}</div>
+        <div class="lead-cat"><h3> BANK TOP 5</h3>${b.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.total}</span></div>`).join('')}</div>
         <div class="lead-cat"><h3>📖 SPELL TOP 5</h3>${s.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.spellTotal}</span></div>`).join('')}</div>
         <div class="lead-cat"><h3>🔢 MATH TOP 5</h3>${m.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.mathTotal}</span></div>`).join('')}</div>`;
 }
@@ -222,14 +220,15 @@ function keyPress(val) {
         if (val === "DEL") { 
             if (activeBoxIndex > 1) { 
                 activeBoxIndex--; 
+                // Clear the content and reset style
                 grid.children[activeBoxIndex].innerText = ""; 
-                grid.children[activeBoxIndex].classList.remove('hint');
+                grid.children[activeBoxIndex].style.color = "white"; 
                 updateActiveBox();
             } 
         } else {
             if (activeBoxIndex < currentWord.length - 1) { 
                 grid.children[activeBoxIndex].innerText = val; 
-                grid.children[activeBoxIndex].classList.remove('hint');
+                grid.children[activeBoxIndex].style.color = "white"; // Make it solid white when typed
                 activeBoxIndex++; 
                 updateActiveBox();
             } 
@@ -284,18 +283,17 @@ function checkAnswer() {
     let val = "";
     if (mode === "math") { val = currentInput.trim(); if (!val) return; } 
     else { 
-        const grid = document.getElementById("letterGrid"); 
+        const g = document.getElementById("letterGrid"); 
         for (let i = 1; i < currentWord.length - 1; i++) { 
-            if (!grid.children[i].innerText.trim() || grid.children[i].classList.contains('hint')) { 
+            // Check if box is empty or has a ghost hint (color ffeaa7)
+            if (!g.children[i].innerText.trim() || g.children[i].style.color === "rgb(255, 234, 167)") { 
                 document.getElementById("message").innerText = "Type the letters! ✍️"; return; 
             } 
         } 
-        Array.from(grid.children).forEach(b => val += b.innerText); 
+        Array.from(g.children).forEach(b => val += b.innerText); 
     }
     isProcessing = true;
-    const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
-    
-    if (isCorrect) {
+    if ((mode === "math" && parseInt(val) === correctAnswer) || (mode === "spelling" && val.toLowerCase() === currentWord)) {
         if (user.today < 300) { if (mode === "math") { user.math++; user.mathTotal++; } else { user.spell++; user.spellTotal++; } user.today += 10; user.total += 10; }
         document.getElementById("message").style.color = "#55efc4"; document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`; sync(); updateScore(); playCheer(); createConfetti(); setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
     } else {
@@ -304,13 +302,21 @@ function checkAnswer() {
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; showMathHelp(); }
         else { 
             const g = document.getElementById("letterGrid"); let empty = []; 
-            for(let i=1; i<currentWord.length-1; i++) if(!g.children[i].innerText.trim()) empty.push(i);
+            for(let i=1; i<currentWord.length-1; i++) {
+                // Find boxes that don't have a solid white letter
+                if(!g.children[i].innerText.trim() || g.children[i].style.color === "rgb(255, 234, 167)") empty.push(i);
+            }
             if(empty.length > 0) {
                 let r = empty[Math.floor(Math.random()*empty.length)];
-                g.children[r].innerText = currentWord[r]; g.children[r].classList.add('hint');
+                g.children[r].innerText = currentWord[r]; 
+                g.children[r].style.color = "#ffeaa7"; // Ghost Hint color
             }
-            for(let i=1; i<currentWord.length-1; i++) if (!g.children[i].classList.contains('hint')) g.children[i].innerText = "";
-            activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
+            // Clear wrong letters but keep hints
+            for(let i=1; i<currentWord.length-1; i++) {
+                if (g.children[i].style.color !== "rgb(255, 234, 167)") g.children[i].innerText = "";
+            }
+            activeBoxIndex = 1; while(activeBoxIndex < currentWord.length-1 && g.children[activeBoxIndex].innerText !== "" && g.children[activeBoxIndex].style.color !== "rgb(255, 234, 167)") activeBoxIndex++;
+            updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
         }
         sync(); updateScore(); isProcessing = false;
     }
@@ -334,9 +340,6 @@ function playFart() { const osc = audioCtx.createOscillator(); const g = audioCt
 function createConfetti() { for (let i = 0; i < 40; i++) { const c = document.createElement('div'); c.style.position = 'fixed'; c.style.width = '8px'; c.style.height = '8px'; c.style.zIndex = '4000'; c.style.left = Math.random() * 100 + 'vw'; c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; c.style.animation = `fall ${Math.random() * 1.5 + 1}s linear forwards`; document.body.appendChild(c); setTimeout(() => c.remove(), 2500); } }
 function resetPrompt() { let b = Math.floor(Math.random()*4)+11; if (prompt(`${b}x${b}?`) == b*b) { let c = prompt("1:Day 2:Total"); if(c=="1") { user.math=0; user.spell=0; user.today=0; } else if(c=="2") { user.total=0; user.math=0; user.spell=0; user.today=0; user.mathTotal=0; user.spellTotal=0; } sync(); updateScore(); } }
 </script>
-<style> 
-  @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } } 
-  .letter-box.hint { color: #ffeaa7 !important; opacity: 0.5; }
-</style>
+<style> @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } } </style>
 </body>
 </html>
