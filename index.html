@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.24</title>
+  <title>Melorin Clubhouse 5.25</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card-inner: #6c5ce7; --text-light: #ffffff; --text-dark: #2d3436; --key-bg: #ffffff; --key-shadow: #dfe6e9; }
@@ -68,7 +68,7 @@
       <div class="stat-row"><span>Spell Today: <b><span id="spellTDisplay">0</span>/20</b></span><span>Spell Total: <b><span id="spellTotalDisplay">0</span></b></span></div>
       <div class="mode-btns">
         <button id="modeBtn" onclick="toggleMode()">Switch Game</button>
-        <button id="leadBtn" onclick="showLeaderboard()">Leaderboard</button>
+        <button id="leadBtn" onclick="showLeaderboard()">🏆 Leaderboard</button>
       </div>
     </div>
     <div class="question-area">
@@ -134,11 +134,23 @@ async function showLeaderboard() {
     try {
         const res = await fetch(`${SCRIPT_URL}?action=getLeaderboard`);
         const leaders = await res.json();
-        let list = "🏆 CLUBHOUSE LEADERBOARD 🏆\n\n";
-        leaders.forEach((u, i) => {
-            list += `${i+1}. ${capitalize(u.name)}: ${u.total}🪙 | Spell: ${u.spellTotal} | Math: ${u.mathTotal}\n`;
-        });
-        alert(list);
+        
+        let bankTop = [...leaders].sort((a,b) => b.total - a.total).slice(0,3);
+        let spellTop = [...leaders].sort((a,b) => b.spellTotal - a.spellTotal).slice(0,3);
+        let mathTop = [...leaders].sort((a,b) => b.mathTotal - a.mathTotal).slice(0,3);
+
+        let finalMsg = "🏆 THE CLUBHOUSE LEADERS 🏆\n\n";
+        
+        finalMsg += "💰 BANK (Total Coins)\n";
+        bankTop.forEach((u, i) => finalMsg += `${i+1}. ${capitalize(u.name)} (${u.total})\n`);
+        
+        finalMsg += "\n📖 SPELLING STARS\n";
+        spellTop.forEach((u, i) => finalMsg += `${i+1}. ${capitalize(u.name)} (${u.spellTotal})\n`);
+        
+        finalMsg += "\n🔢 MATH MASTERS\n";
+        mathTop.forEach((u, i) => finalMsg += `${i+1}. ${capitalize(u.name)} (${u.mathTotal})\n`);
+
+        alert(finalMsg);
     } catch(e) { alert("Could not load Leaderboard"); }
 }
 
