@@ -295,41 +295,61 @@ function checkAnswer() {
     isProcessing = true;
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
     
+  function checkAnswer() {
+    if (isProcessing) return;
+    let val = "";
+    if (mode === "math") { 
+        val = currentInput.trim(); 
+        if (!val) return; 
+    } else { 
+        const grid = document.getElementById("letterGrid"); 
+        for (let i = 1; i < currentWord.length - 1; i++) { 
+            if (!grid.children[i].innerText.trim() || grid.children[i].classList.contains('hint')) { 
+                document.getElementById("message").innerText = "Type the letters! ✍️"; return; 
+            } 
+        } 
+        Array.from(grid.children).forEach(b => val += b.innerText); 
+    }
+    isProcessing = true;
+    const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
+    
     if (isCorrect) {
-        // Calculate reward: Only +10 if today's TOTAL (Math + Spell) is < 300
         let reward = (user.today < 300) ? 10 : 0;
-        
-        if (mode === "math") { 
-            user.math++; 
-            user.mathTotal++; 
-        } else { 
-            user.spell++; 
-            user.spellTotal++; 
-        }
+        if (mode === "math") { user.math++; user.mathTotal++; } 
+        else { user.spell++; user.spellTotal++; }
         
         user.today += reward;
         user.total += reward;
         
         document.getElementById("message").style.color = "#55efc4"; 
         document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`; 
-        sync(); 
-        updateScore(); 
-        playCheer(); 
-        createConfetti(); 
+        sync(); updateScore(); playCheer(); createConfetti(); 
         setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
     } else {
-        attempts++; if (user.today > 0) { user.today = Math.max(0, user.today - 3); user.total = Math.max(0, user.total - 3); }
-        document.getElementById("message").style.color = "#ff7675"; document.getElementById("message").innerText = "-3 Tokens 💨"; playFart();
-        if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; showMathHelp(); }
-        else { 
-            const g = document.getElementById("letterGrid"); let empty = []; 
+        attempts++; 
+        if (user.today > 0) { 
+            user.today = Math.max(0, user.today - 3); 
+            user.total = Math.max(0, user.total - 3); 
+        }
+        document.getElementById("message").style.color = "#ff7675"; 
+        document.getElementById("message").innerText = "-3 Tokens 💨"; 
+        playFart();
+        if (mode === "math") { 
+            currentInput = ""; 
+            document.getElementById("displayArea").innerText = "?"; 
+            showMathHelp(); 
+        } else { 
+            const g = document.getElementById("letterGrid"); 
+            let empty = []; 
             for(let i=1; i<currentWord.length-1; i++) if(!g.children[i].innerText.trim()) empty.push(i);
             if(empty.length > 0) {
                 let r = empty[Math.floor(Math.random()*empty.length)];
-                g.children[r].innerText = currentWord[r]; g.children[r].classList.add('hint');
+                g.children[r].innerText = currentWord[r]; 
+                g.children[r].classList.add('hint');
             }
             for(let i=1; i<currentWord.length-1; i++) if (!g.children[i].classList.contains('hint')) g.children[i].innerText = "";
-            activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
+            activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); 
+            if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
         }
         sync(); updateScore(); isProcessing = false;
     }
