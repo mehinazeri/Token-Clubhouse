@@ -162,7 +162,15 @@ async function attemptLogin() {
         } else {
             const today = new Date().toLocaleDateString();
             user = { name, pin, ...data, history: parseInt(data.history) || 0 };
-            if(user.lastDate !== today) { user.math = 0; user.spell = 0; user.today = 0; user.lastDate = today; }
+            // ONLY RESET IF THE SAVED DATE IS NOT TODAY
+if (user.lastDate && user.lastDate !== today) {
+    user.math = 0;
+    user.spell = 0;
+    user.today = 0;
+    user.lastDate = today;
+    // Sync immediately so the sheet knows the new day has started
+    sync(); 
+}
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("loadingOverlay").style.display = "none";
             document.getElementById("appContent").style.display = "flex";
