@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.22</title>
+  <title>Melorin Clubhouse 5.23</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card-inner: #6c5ce7; --text-light: #ffffff; --text-dark: #2d3436; --key-bg: #ffffff; --key-shadow: #dfe6e9; }
@@ -16,7 +16,8 @@
     .top-stats { background: rgba(255,255,255,0.15); padding: 10px; border-radius: 18px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2); }
     .stat-row { display: flex; justify-content: space-between; font-size: 12px; font-weight: 900; color: white; }
     .stat-row b { color: #ffeaa7; font-size: 14px; }
-    #modeBtn { background: #ffffff; color: var(--primary); border: none; border-radius: 10px; font-size: 10px; font-weight: 900; padding: 6px 14px; cursor: pointer; align-self: center; text-transform: uppercase; }
+    .mode-btns { display: flex; flex-direction: column; gap: 5px; align-items: center; margin-top: 5px; }
+    #modeBtn, #leadBtn { background: #ffffff; color: var(--primary); border: none; border-radius: 10px; font-size: 10px; font-weight: 900; padding: 6px 14px; cursor: pointer; text-transform: uppercase; width: 130px; }
     .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     .question { font-size: 44px; font-weight: 900; color: white; margin-bottom: 5px; width: 100%; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     #displayArea { font-size: 36px; font-weight: 900; color: #55efc4; min-height: 40px; border-bottom: 3px dashed rgba(255,255,255,0.4); min-width: 70px; text-align: center; }
@@ -65,7 +66,10 @@
     <div class="top-stats">
       <div class="stat-row"><span>Math Today: <b><span id="mathTDisplay">0</span>/10</b></span><span>Math Total: <b><span id="mathTotalDisplay">0</span></b></span></div>
       <div class="stat-row"><span>Spell Today: <b><span id="spellTDisplay">0</span>/20</b></span><span>Spell Total: <b><span id="spellTotalDisplay">0</span></b></span></div>
-      <button id="modeBtn" onclick="toggleMode()">Switch Game</button>
+      <div class="mode-btns">
+        <button id="modeBtn" onclick="toggleMode()">Switch Game</button>
+        <button id="leadBtn" onclick="showLeaderboard()">Leaderboard</button>
+      </div>
     </div>
     <div class="question-area">
       <div id="mathArea"><div class="question" id="mathQuestion"></div><div id="displayArea">?</div></div>
@@ -95,13 +99,17 @@ let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "",
 let mode = "spelling", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [], questionsSinceMistake = 0, isProcessing = false;
 let num1, num2, operator, correctAnswer, attempts = 0, currentInput = "", activeBoxIndex = 1, currentRevealedIndices = [], penaltyApplied = false;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
 function playCheer() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.frequency.setValueAtTime(500, 0); osc.frequency.exponentialRampToValueAtTime(1200, 0.1); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.2); }
 function playFart() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, 0); osc.frequency.linearRampToValueAtTime(40, 0.4); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.4); }
 
 async function attemptLogin() {
-    const name = document.getElementById("loginName").value.trim();
+    const nameInput = document.getElementById("loginName").value.trim();
     const pin = document.getElementById("loginPin").value.trim();
-    if(!name || !pin) return;
+    if(!nameInput || !pin) return;
+    const name = capitalize(nameInput);
     document.getElementById("loadMsg").innerText = `Connecting to ${name}'s Profile...`;
     document.getElementById("loadingOverlay").style.display = "flex";
     try {
@@ -122,8 +130,20 @@ async function attemptLogin() {
     } catch(e) { document.getElementById("loadingOverlay").style.display = "none"; document.getElementById("loginError").innerText = "Connection Error"; }
 }
 
+async function showLeaderboard() {
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getLeaderboard`);
+        const leaders = await res.json();
+        let list = "🏆 CLUBHOUSE LEADERBOARD 🏆\n\n";
+        leaders.forEach((u, i) => {
+            list += `${i+1}. ${capitalize(u.name)}: ${u.total}🪙 | Spell: ${u.spellTotal} | Math: ${u.mathTotal}\n`;
+        });
+        alert(list);
+    } catch(e) { alert("Could not load Leaderboard"); }
+}
+
 async function updatePinPrompt() {
-    const name = document.getElementById("loginName").value.trim();
+    const name = capitalize(document.getElementById("loginName").value.trim());
     const oldPin = document.getElementById("loginPin").value.trim();
     if(!name || !oldPin) return alert("Enter Name and PIN");
     const newPin = prompt("Enter new 4-digit PIN:");
