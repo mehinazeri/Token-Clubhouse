@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.21</title>
+  <title>Melorin Clubhouse 5.22</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card-inner: #6c5ce7; --text-light: #ffffff; --text-dark: #2d3436; --key-bg: #ffffff; --key-shadow: #dfe6e9; }
@@ -23,7 +23,7 @@
     .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 4px; margin: 15px 0; width: 100%; }
     .letter-box { width: 34px; height: 44px; font-size: 24px; text-align: center; border: 2.5px solid rgba(255,255,255,0.3); border-radius: 8px; text-transform: lowercase; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); color: white; }
     .letter-box.active { border-color: white; background: rgba(255,255,255,0.3); }
-    #helpArea { background: rgba(255,255,255,0.95); border-radius: 18px; padding: 8px; min-height: 80px; display: none; align-items: center; justify-content: center; flex-direction: column; margin: 0 10px; }
+    #helpArea { background: rgba(255,255,255,0.95); border-radius: 18px; padding: 10px; min-height: 90px; display: none; align-items: center; justify-content: center; flex-direction: column; margin: 0 10px; overflow-x: auto; }
     #keyboardArea { height: 28%; background: #f1f2f6; padding: 6px; display: flex; flex-direction: column; justify-content: space-between; border-top: 1px solid #ddd; }
     .kb-row { display: flex; justify-content: center; gap: 3px; width: 100%; }
     .key { background: var(--key-bg); border-radius: 6px; padding: 10px 0; font-size: 18px; font-weight: 900; flex: 1; max-width: 38px; border: none; box-shadow: 0 3px 0 var(--key-shadow); color: var(--text-dark); }
@@ -40,7 +40,8 @@
     .dot { width: 11px; height: 11px; border-radius: 50%; background: #0984e3; }
     .dot.secondary { background: #d63031; }
     .dot.dim { background: #dfe6e9; opacity: 0.3; }
-    .division-group { border: 2px solid #4CAF50; padding: 4px; border-radius: 8px; display: inline-block; margin: 2px; background: white; }
+    .division-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; width: 100%; }
+    .division-group { border: 2.2px solid #4CAF50; padding: 3px; border-radius: 8px; display: inline-flex; flex-wrap: wrap; gap: 2px; background: white; min-width: 20px; justify-content: center; }
     .confetti { position: fixed; width: 8px; height: 8px; z-index: 4000; pointer-events: none; }
     @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } }
   </style>
@@ -148,27 +149,16 @@ function keyPress(val) {
         if (val === "DEL") { 
             if (activeBoxIndex > 1) { 
                 let prevIdx = activeBoxIndex - 1;
-                if (currentRevealedIndices.includes(prevIdx)) {
-                    activeBoxIndex = prevIdx; 
-                    updateActiveBox();
-                    keyPress("DEL"); 
-                } else {
-                    activeBoxIndex--; 
-                    grid.children[activeBoxIndex].innerText = ""; 
-                    updateActiveBox(); 
-                }
+                while (prevIdx > 0 && currentRevealedIndices.includes(prevIdx)) { prevIdx--; }
+                if (prevIdx >= 1) { activeBoxIndex = prevIdx; grid.children[activeBoxIndex].innerText = ""; updateActiveBox(); }
             } 
         } else {
             if (activeBoxIndex < currentWord.length - 1) { 
-                if (currentRevealedIndices.includes(activeBoxIndex)) {
-                    activeBoxIndex++;
-                    updateActiveBox();
-                    keyPress(val);
-                } else {
-                    grid.children[activeBoxIndex].innerText = val; 
-                    activeBoxIndex++; 
-                    updateActiveBox(); 
-                }
+                grid.children[activeBoxIndex].innerText = val; 
+                let nextIdx = activeBoxIndex + 1;
+                while (nextIdx < currentWord.length - 1 && currentRevealedIndices.includes(nextIdx)) { nextIdx++; }
+                activeBoxIndex = nextIdx;
+                updateActiveBox();
             } 
         }
     }
@@ -176,16 +166,7 @@ function keyPress(val) {
 function updateActiveBox() { 
     const grid = document.getElementById("letterGrid"); 
     Array.from(grid.children).forEach((box, i) => { 
-        if (i === activeBoxIndex && i < currentWord.length - 1) {
-            if (currentRevealedIndices.includes(i)) {
-                activeBoxIndex++;
-                updateActiveBox();
-            } else {
-                box.style.borderColor = "white"; 
-            }
-        } else {
-            box.style.borderColor = "rgba(255,255,255,0.3)";
-        }
+        box.style.borderColor = (i === activeBoxIndex && i < currentWord.length - 1) ? "white" : "rgba(255,255,255,0.3)";
     }); 
 }
 function generateMath() { const qCount = user.math + 1; if (qCount <= 3) { operator = Math.random() > 0.5 ? "+" : "-"; num1 = Math.floor(Math.random() * 10) + 10; num2 = Math.floor(Math.random() * 6) + 1; } else if (qCount <= 7) { const ops = ["+", "-", "*"]; operator = ops[Math.floor(Math.random() * 3)]; if (operator === "*") { num1 = Math.floor(Math.random() * 4) + 2; num2 = Math.floor(Math.random() * 4) + 2; } else { num1 = Math.floor(Math.random() * 15) + 15; num2 = Math.floor(Math.random() * 10) + 5; } } else { operator = Math.random() > 0.5 ? "*" : "/"; num2 = Math.floor(Math.random() * 4) + 6; let ans = Math.floor(Math.random() * 4) + 6; if (operator === "*") num1 = ans; else num1 = num2 * ans; } if (operator === "-" && num2 > num1) [num1, num2] = [num2, num1]; correctAnswer = (operator === "+") ? num1 + num2 : (operator === "-") ? num1 - num2 : (operator === "*") ? num1 * num2 : num1 / num2; document.getElementById("mathQuestion").innerText = `${num1} ${operator === '*' ? '×' : (operator === '/' ? '÷' : operator)} ${num2}`; document.getElementById("displayArea").innerText = "?"; document.getElementById("helpArea").innerHTML = ""; }
@@ -220,8 +201,6 @@ function checkAnswer() {
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; showMathHelp(); }
         else { 
             const g = document.getElementById("letterGrid"); 
-            Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1 && !currentRevealedIndices.includes(i)) b.innerText = ""; }); 
-            activeBoxIndex = 1; 
             let emptyIndices = []; for(let i=1; i<currentWord.length-1; i++) { if(!currentRevealedIndices.includes(i)) emptyIndices.push(i); }
             if(emptyIndices.length > 0) {
                 let rand = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
@@ -229,6 +208,8 @@ function checkAnswer() {
                 g.children[rand].innerText = currentWord[rand];
                 g.children[rand].style.color = "#ffeaa7";
             }
+            Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1 && !currentRevealedIndices.includes(i)) b.innerText = ""; }); 
+            activeBoxIndex = 1; while(currentRevealedIndices.includes(activeBoxIndex)) activeBoxIndex++;
             updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
         }
         isProcessing = false; 
@@ -252,7 +233,13 @@ function showMathHelp() {
     } else if (operator === "*") {
         for(let r=0; r<num1; r++) { const row = document.createElement("div"); row.style.display="flex"; for(let c=0; c<num2; c++) { const d=document.createElement("div"); d.className="dot"; d.style.margin="1px"; row.appendChild(d); } aid.appendChild(row); }
     } else if (operator === "/") {
-        for(let g=0; g<num2; g++) { const grp = document.createElement("div"); grp.className = "division-group"; for(let i=0; i<correctAnswer; i++) { const d = document.createElement("div"); d.className = "dot"; d.style.margin="1px"; grp.appendChild(d); } aid.appendChild(grp); }
+        const row = document.createElement("div"); row.className = "division-row";
+        for(let g=0; g<num2; g++) { 
+            const grp = document.createElement("div"); grp.className = "division-group"; 
+            for(let i=0; i<correctAnswer; i++) { const d = document.createElement("div"); d.className = "dot"; grp.appendChild(d); } 
+            row.appendChild(grp); 
+        }
+        aid.appendChild(row);
     }
 }
 function updateScore() { document.getElementById("mathTDisplay").innerText = user.math; document.getElementById("mathTotalDisplay").innerText = user.mathTotal || 0; document.getElementById("spellTDisplay").innerText = user.spell; document.getElementById("spellTotalDisplay").innerText = user.spellTotal || 0; document.getElementById("todayTokensDisplay").innerText = user.today; document.getElementById("totalTokensDisplay").innerText = user.total; document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%"; }
