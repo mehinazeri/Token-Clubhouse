@@ -162,14 +162,18 @@ async function attemptLogin() {
         } else {
             const today = new Date().toLocaleDateString();
             user = { name, pin, ...data, history: parseInt(data.history) || 0 };
-            // ONLY RESET IF THE SAVED DATE IS NOT TODAY
+// 1. Check if we need to reset for a new day
 if (user.lastDate && user.lastDate !== today) {
     user.math = 0;
     user.spell = 0;
     user.today = 0;
     user.lastDate = today;
-    // Sync immediately so the sheet knows the new day has started
+    // 2. FORCE an immediate sync to the sheet so it marks "Today" as done
     sync(); 
+} else if (!user.lastDate) {
+    // 3. If there's no date at all, set it to today but don't reset points
+    user.lastDate = today;
+    sync();
 }
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("loadingOverlay").style.display = "none";
