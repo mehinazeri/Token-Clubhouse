@@ -282,22 +282,6 @@ function sayWord() { window.speechSynthesis.cancel(); let m = new SpeechSynthesi
 function checkAnswer() {
     if (isProcessing) return;
     let val = "";
-    if (mode === "math") { val = currentInput.trim(); if (!val) return; } 
-    else { 
-        const grid = document.getElementById("letterGrid"); 
-        for (let i = 1; i < currentWord.length - 1; i++) { 
-            if (!grid.children[i].innerText.trim() || grid.children[i].classList.contains('hint')) { 
-                document.getElementById("message").innerText = "Type the letters! ✍️"; return; 
-            } 
-        } 
-        Array.from(grid.children).forEach(b => val += b.innerText); 
-    }
-    isProcessing = true;
-    const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
-    
-  function checkAnswer() {
-    if (isProcessing) return;
-    let val = "";
     if (mode === "math") { 
         val = currentInput.trim(); 
         if (!val) return; 
@@ -354,7 +338,7 @@ function checkAnswer() {
         sync(); updateScore(); isProcessing = false;
     }
 }
-
+// --- END CLEAN CODE HERE ---
 function showMathHelp() {
     const aid = document.getElementById("helpArea"); aid.innerHTML = ""; aid.style.display = "flex";
     if (operator === "*") {
