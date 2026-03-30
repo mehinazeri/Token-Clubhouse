@@ -160,22 +160,29 @@ async function attemptLogin() {
             document.getElementById("loadingOverlay").style.display = "none";
             err.innerText = "Wrong name or PIN!"; 
         } else {
-            const today = new Date().toLocaleDateString();
-            user = { name, pin, ...data, history: parseInt(data.history) || 0 };
-// 1. Check if it's a brand new day
-if (user.lastDate !== today) {
+            const today = new Date().toLocaleDateString('en-AU'); // Force Sydney Date Format
+console.log("Sheet Date:", user.lastDate, "Today:", today);
+
+// RESET LOGIC: Only if the sheet date exists AND is different from today
+if (user.lastDate && user.lastDate.trim() !== "" && user.lastDate !== today) {
     user.math = 0;
     user.spell = 0;
     user.today = 0;
     user.lastDate = today;
     
-    // 2. FORCE a "Wait" sync so the sheet saves BEFORE the app opens
-    document.getElementById("loadingOverlay").querySelector(".loading-box").innerText = "Starting a new day...";
+    // Notify the user
+    document.getElementById("loadingOverlay").querySelector(".loading-box").innerText = "New Day! Resetting Counters...";
     
+    // Sync immediately and WAIT for the sheet to confirm save
     await fetch(SCRIPT_URL, { 
         method: "POST", 
+        mode: "no-cors", // Prevents browser blocking the save
         body: JSON.stringify({...user, action: "sync"}) 
     });
+} else if (!user.lastDate || user.lastDate.trim() === "") {
+    // If date is missing (first time ever), set it to today but DON'T reset points
+    user.lastDate = today;
+    await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({...user, action: "sync"}) });
 }
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("loadingOverlay").style.display = "none";
