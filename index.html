@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.30</title>
+  <title>Melorin Clubhouse 5.32</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card-inner: #6c5ce7; --text-light: #ffffff; --text-dark: #2d3436; --key-bg: #ffffff; --key-shadow: #dfe6e9; }
@@ -20,14 +20,13 @@
     .top-stats { background: rgba(255,255,255,0.15); padding: 10px; border-radius: 18px; display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.2); }
     .stat-row { display: flex; justify-content: space-between; font-size: 12px; font-weight: 900; color: white; }
     .stat-row b { color: #ffeaa7; font-size: 14px; }
-    
     .mode-btns { display: flex; flex-direction: column; gap: 5px; align-items: center; margin-top: 5px; }
     #modeBtn, #leadBtn { background: #ffffff; color: var(--primary); border: none; border-radius: 10px; font-size: 10px; font-weight: 900; padding: 6px 14px; cursor: pointer; text-transform: uppercase; width: 130px; }
 
     /* EXIT BUTTON */
     #exitBtn { position: absolute; top: 8px; right: 8px; background: #ff7675; color: white; border: none; border-radius: 8px; padding: 5px 12px; font-size: 10px; font-weight: 900; cursor: pointer; z-index: 20; }
 
-    /* PRO LEADERBOARD - NO SCROLL */
+    /* LEADERBOARD VIEW - NO SCROLL */
     #leaderboardView { display: none; flex-grow: 1; padding: 10px; color: white; text-align: center; justify-content: center; flex-direction: column; }
     .lead-cat { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); }
     .lead-cat h3 { margin: 0 0 5px 0; font-size: 15px; color: #ffeaa7; text-transform: uppercase; letter-spacing: 1px; }
@@ -127,7 +126,7 @@
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqCaEQWOa-BhU0VWygZf87Fbr_Ztz7maNC7kEYCGxEaHmQKTRRzL-PszDVJbRrwwU3rg/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDJCP05Ic2Tf0ClgR8RdQ0leMZvGPXdlNLTQ_gpPwXZIokfdj19eT4PVwtQBzjvfYZww/exec';
 let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0, lastDate: "", mathTotal: 0, spellTotal: 0 };
 let mode = "spelling", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [], questionsSinceMistake = 0, isProcessing = false;
 let num1, num2, operator, correctAnswer, attempts = 0, currentInput = "", activeBoxIndex = 1, currentRevealedIndices = [], penaltyApplied = false;
