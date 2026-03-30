@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.11</title>
+  <title>Melorin Clubhouse 5.12</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card: #ffffff; --accent: #ede7f6; }
@@ -161,28 +161,31 @@ async function attemptLogin() {
             document.getElementById("loadingOverlay").style.display = "none";
             err.innerText = "Wrong name or PIN!"; 
         } else {
-            // Assign data FIRST
-            user = { name, pin, ...data, history: parseInt(data.history) || 0 };
+            // LOAD DATA SECURELY
+            user = { 
+                name, pin, ...data, 
+                history: parseInt(data.history) || 0,
+                math: parseInt(data.math) || 0,
+                spell: parseInt(data.spell) || 0,
+                today: parseInt(data.today) || 0,
+                total: parseInt(data.total) || 0,
+                mathTotal: parseInt(data.mathTotal) || 0,
+                spellTotal: parseInt(data.spellTotal) || 0
+            };
             
             const today = new Date().toLocaleDateString('en-AU'); 
             
-            // RESET LOGIC: Only if the sheet date exists AND is different from today
+            // RESET LOGIC: Only if the sheet date is different
             if (user.lastDate && user.lastDate.trim() !== "" && user.lastDate !== today) {
                 user.math = 0;
                 user.spell = 0;
                 user.today = 0;
                 user.lastDate = today;
-                
                 document.getElementById("loadingOverlay").querySelector(".loading-box").innerText = "New Day! Resetting Counters...";
-                
-                await fetch(SCRIPT_URL, { 
-                    method: "POST", 
-                    mode: "no-cors", 
-                    body: JSON.stringify({...user, action: "sync"}) 
-                });
-            } else if (!user.lastDate || user.lastDate.trim() === "") {
-                user.lastDate = today;
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({...user, action: "sync"}) });
+            } else {
+                // Keep the numbers exactly as they are from the sheet
+                user.lastDate = today;
             }
 
             document.getElementById("loginScreen").style.display = "none";
@@ -287,7 +290,6 @@ function sayWord() { window.speechSynthesis.cancel(); let m = new SpeechSynthesi
 
 function checkAnswer() {
     if (isProcessing) return;
-
     let val = "";
     if (mode === "math") {
         val = currentInput.trim();
@@ -301,9 +303,7 @@ function checkAnswer() {
         if (!filled) return;
         Array.from(grid.children).forEach(b => val += b.innerText);
     }
-
     isProcessing = true;
-
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
     const limitReached = (mode === "math" ? user.math >= 10 : user.spell >= 20);
 
@@ -313,35 +313,21 @@ function checkAnswer() {
         user.total += r; user.today += r; user.history++;
         document.getElementById("message").style.color = "green"; document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`;
         sync(); updateScore(); 
-        
-        setTimeout(() => { 
-            isProcessing = false; 
-            nextTask(); 
-        }, 1500);
-
+        setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
     } else {
         attempts++; playFart(); 
-        
-        // CLEAN LOG: [Time] Question => WrongInput
         let qDetail = (mode === "math") ? document.getElementById("mathQuestion").innerText : currentWord;
         user.logs += `[${new Date().toLocaleTimeString()}] ${qDetail} => ${val}\n`;
-
         if (!penaltyApplied && !limitReached) { user.today = Math.max(0, user.today - 3); penaltyApplied = true; sync(); updateScore(); }
         document.getElementById("message").style.color = "red"; document.getElementById("message").innerText = "-3 Tokens 💨";
-        
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; }
         else { const g = document.getElementById("letterGrid"); Array.from(g.children).forEach((b, i) => { if(i > 0 && i < currentWord.length-1) b.innerText = ""; }); activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); }
-        
         showHelp();
         isProcessing = false; 
-
         if (attempts >= 5) { 
             isProcessing = true;
             document.getElementById("message").innerText = `Ans: ${mode === "math" ? correctAnswer : currentWord}`; 
-            setTimeout(() => { 
-                isProcessing = false; 
-                nextTask(); 
-            }, 2500); 
+            setTimeout(() => { isProcessing = false; nextTask(); }, 2500); 
         }
     }
 }
