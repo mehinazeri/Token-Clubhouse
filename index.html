@@ -306,7 +306,9 @@ function checkAnswer() {
 
     } else {
         attempts++; playFart(); 
-        if (!penaltyApplied && !limitReached) { user.today = Math.max(0, user.today - 3); penaltyApplied = true; user.logs += `[${new Date().toLocaleTimeString()}] ${mode}: ${val} wrong.\n`; sync(); updateScore(); }
+        if (!penaltyApplied && !limitReached) { user.today = Math.max(0, user.today - 3); penaltyApplied = true; sync(); updateScore(); }
+let qDetail = (mode === "math") ? document.getElementById("mathQuestion").innerText : currentWord;
+user.logs += `[${new Date().toLocaleTimeString()}] ${qDetail} => ${val}\n`;
         document.getElementById("message").style.color = "red"; document.getElementById("message").innerText = "-3 Tokens 💨";
         
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; }
