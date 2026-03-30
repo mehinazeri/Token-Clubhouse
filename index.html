@@ -163,6 +163,9 @@ async function attemptLogin() {
             const today = new Date().toLocaleDateString('en-AU'); // Force Sydney Date Format
 console.log("Sheet Date:", user.lastDate, "Today:", today);
 
+const today = new Date().toLocaleDateString('en-AU'); // Force Sydney Date Format
+console.log("Sheet Date:", user.lastDate, "Today:", today);
+
 // RESET LOGIC: Only if the sheet date exists AND is different from today
 if (user.lastDate && user.lastDate.trim() !== "" && user.lastDate !== today) {
     user.math = 0;
