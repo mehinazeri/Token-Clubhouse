@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 5.34</title>
+  <title>Melorin Clubhouse 5.35</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="apple-touch-icon" href="icon.png">
   <style>
@@ -18,14 +18,15 @@
     #loginScreen button { background: #4CAF50; color: white; padding: 16px 32px; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; font-size: 18px; }
 
     .top-section { padding: 10px 15px; height: 62%; display: flex; flex-direction: column; box-sizing: border-box; color: white; position: relative; }
-    .top-stats { background: rgba(255,255,255,0.15); padding: 8px; border-radius: 18px; display: flex; flex-direction: column; gap: 2px; margin-bottom: 5px; border: 1px solid rgba(255,255,255,0.2); }
+    .top-stats { background: rgba(255,255,255,0.15); padding: 8px; border-radius: 18px; display: flex; flex-direction: column; gap: 2px; margin-bottom: 5px; border: 1px solid rgba(255,255,255,0.2); margin-top: 25px; }
     .stat-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: 900; color: white; }
     .stat-row b { color: #ffeaa7; font-size: 13px; }
     
     .mode-btns { display: flex; flex-direction: row; gap: 5px; justify-content: center; margin-top: 4px; }
     #modeBtn, #leadBtn { background: #ffffff; color: var(--primary); border: none; border-radius: 8px; font-size: 10px; font-weight: 900; padding: 5px 10px; cursor: pointer; text-transform: uppercase; width: 110px; }
 
-    #exitBtn { position: absolute; top: 6px; right: 6px; background: #ff7675; color: white; border: none; border-radius: 6px; padding: 4px 10px; font-size: 9px; font-weight: 900; cursor: pointer; z-index: 20; }
+    #adminBtn { position: absolute; top: 10px; left: 15px; background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.5; color: white; }
+    #exitBtn { position: absolute; top: 10px; right: 15px; background: #ff7675; color: white; border: none; border-radius: 8px; padding: 5px 12px; font-size: 10px; font-weight: 900; cursor: pointer; z-index: 20; }
 
     #leaderboardView { display: none; flex-grow: 1; padding: 5px; color: white; text-align: center; justify-content: center; flex-direction: column; }
     .lead-cat { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 5px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.1); }
@@ -36,12 +37,15 @@
     .question { font-size: 44px; font-weight: 900; color: white; margin-bottom: 5px; width: 100%; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     #displayArea { font-size: 36px; font-weight: 900; color: #55efc4; min-height: 40px; border-bottom: 3px dashed rgba(255,255,255,0.4); min-width: 70px; text-align: center; }
     
-    .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 4px; margin: 15px 0; width: 100%; }
-    .letter-box { width: 34px; height: 44px; font-size: 24px; text-align: center; border: 2.5px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); color: white; }
+    .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 4px; margin: 10px 0; width: 100%; }
+    .letter-box { width: 34px; height: 44px; font-size: 24px; text-align: center; border: 2.5px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); color: white; transition: all 0.3s; }
     .letter-box.active { border-color: #55efc4 !important; background: rgba(85, 239, 196, 0.2) !important; }
+    .letter-box.hint { color: #ffeaa7 !important; opacity: 0.7; animation: pulse 1.5s infinite; }
+
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
 
     #keyboardArea { height: 28%; background: #f1f2f6; padding: 6px; display: flex; flex-direction: column; justify-content: space-between; border-top: 1px solid #ddd; }
-    .kb-row { display: flex; justify-content: center; gap: 3px; width: 100%; }
+    .kb-row { display: flex; justify(content: center; gap: 3px; width: 100%; }
     .key { background: var(--key-bg); border-radius: 6px; padding: 10px 0; font-size: 18px; font-weight: 900; flex: 1; max-width: 38px; border: none; box-shadow: 0 3px 0 var(--key-shadow); color: var(--text-dark); }
     .key:active { transform: translateY(2px); box-shadow: none; }
     .key.action { background: #4CAF50; color: white; box-shadow: 0 3px 0 #2d7031; max-width: 65px; }
@@ -77,12 +81,12 @@
   </div>
 
   <div class="top-section" id="appContent" style="display:none;">
-    <button onclick="resetPrompt()" style="position:absolute; top:6px; left:6px; opacity:0.4; border:none; background:none; font-size:18px; color:white;">⚙️</button>
+    <button id="adminBtn" onclick="resetPrompt()">⚙️</button>
     <button id="exitBtn" onclick="location.reload()">EXIT ✖</button>
 
     <div class="top-stats">
-      <div class="stat-row"><span>Math Today: <b><span id="mathTDisplay">0</span>/10</b></span><span>Math Total: <b><span id="mathTotalDisplay">0</span></b></span></div>
-      <div class="stat-row"><span>Spell Today: <b><span id="spellTDisplay">0</span>/20</b></span><span>Spell Total: <b><span id="spellTotalDisplay">0</span></b></span></div>
+      <div class="stat-row"><span>Math Today: <b><span id="mathTDisplay">0</span></b></span><span>Math Total: <b><span id="mathTotalDisplay">0</span></b></span></div>
+      <div class="stat-row"><span>Spell Today: <b><span id="spellTDisplay">0</span></b></span><span>Spell Total: <b><span id="spellTotalDisplay">0</span></b></span></div>
       <div class="mode-btns">
         <button id="modeBtn" onclick="toggleMode()">Switch Game</button>
         <button id="leadBtn" onclick="toggleLeaderboard()">🏆 Leaders</button>
@@ -99,7 +103,7 @@
 
     <div id="leaderboardView">
       <div id="leadContainer"></div>
-      <button onclick="toggleLeaderboard()" style="background:#4CAF50; color:white; border:none; border-radius:10px; padding:8px; font-weight:900; margin-top:4px; width:100%; font-size:13px;">BACK TO GAME</button>
+      <button onclick="toggleLeaderboard()" style="background:#4CAF50; color:white; border:none; border-radius:10px; padding:10px; font-weight:900; margin-top:4px; width:100%; font-size:13px;">BACK TO GAME</button>
     </div>
 
     <div id="helpArea"></div>
@@ -126,7 +130,7 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDJCP05Ic2Tf0ClgR8RdQ0leMZvGPXdlNLTQ_gpPwXZIokfdj19eT4PVwtQBzjvfYZww/exec';
 let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0, lastDate: "", mathTotal: 0, spellTotal: 0 };
 let mode = "spelling", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [], questionsSinceMistake = 0, isProcessing = false;
-let num1, num2, operator, correctAnswer, attempts = 0, currentInput = "", activeBoxIndex = 1, currentRevealedIndices = [], penaltyApplied = false;
+let num1, num2, operator, correctAnswer, attempts = 0, currentInput = "", activeBoxIndex = 1;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
@@ -191,14 +195,22 @@ function renderLeaderboard(data) {
         <div class="lead-cat"><h3>🔢 MATH TOP 5</h3>${m.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.mathTotal}</span></div>`).join('')}</div>`;
 }
 
-function updateScore() { document.getElementById("mathTDisplay").innerText = user.math; document.getElementById("mathTotalDisplay").innerText = user.mathTotal; document.getElementById("spellTDisplay").innerText = user.spell; document.getElementById("spellTotalDisplay").innerText = user.spellTotal; document.getElementById("todayTokensDisplay").innerText = user.today; document.getElementById("totalTokensDisplay").innerText = user.total; document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%"; }
+function updateScore() { 
+    document.getElementById("mathTDisplay").innerText = user.math; 
+    document.getElementById("mathTotalDisplay").innerText = user.mathTotal; 
+    document.getElementById("spellTDisplay").innerText = user.spell; 
+    document.getElementById("spellTotalDisplay").innerText = user.spellTotal; 
+    document.getElementById("todayTokensDisplay").innerText = user.today; 
+    document.getElementById("totalTokensDisplay").innerText = user.total; 
+    document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%"; 
+}
+
 async function loadWords() { const res = await fetch(`${SCRIPT_URL}?action=getWords`); spellingWords = await res.json(); spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); }
 async function sync() { fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({...user, action: "sync"}) }); }
 function toggleMode() { mode = (mode === "math") ? "spelling" : "math"; nextTask(); }
 
 function nextTask() { 
   attempts = 0; 
-  penaltyApplied = false; 
   currentInput = ""; 
   document.getElementById("message").innerText = ""; 
   document.getElementById("mathArea").style.display = (mode === "math") ? "block" : "none"; 
@@ -220,15 +232,13 @@ function keyPress(val) {
             if (activeBoxIndex > 1) { 
                 activeBoxIndex--; 
                 grid.children[activeBoxIndex].innerText = ""; 
-                grid.children[activeBoxIndex].style.color = "white"; 
-                grid.children[activeBoxIndex].style.opacity = "1";
+                grid.children[activeBoxIndex].classList.remove('hint');
                 updateActiveBox();
             } 
         } else {
             if (activeBoxIndex < currentWord.length - 1) { 
                 grid.children[activeBoxIndex].innerText = val; 
-                grid.children[activeBoxIndex].style.color = "white";
-                grid.children[activeBoxIndex].style.opacity = "1"; 
+                grid.children[activeBoxIndex].classList.remove('hint');
                 activeBoxIndex++; 
                 updateActiveBox();
             } 
@@ -236,43 +246,27 @@ function keyPress(val) {
     }
 }
 
-function updateActiveBox() { Array.from(document.getElementById("letterGrid").children).forEach((b, i) => { b.className = (i === activeBoxIndex && i < currentWord.length - 1) ? "letter-box active" : "letter-box"; }); }
+function updateActiveBox() { Array.from(document.getElementById("letterGrid").children).forEach((b, i) => { b.classList.remove('active'); if(i === activeBoxIndex && i < currentWord.length - 1) b.classList.add('active'); }); }
 
 function generateMath() {
-    const qCount = user.math + 1;
-    let currentLevel;
-    if (qCount <= 3) currentLevel = 1;
-    else if (qCount <= 7) currentLevel = 2;
-    else if (qCount <= 10) currentLevel = 3;
-    else currentLevel = Math.floor(Math.random() * 3) + 1;
+    const qToday = user.math + 1;
+    let level;
+    if (qToday <= 3) level = 1; else if (qToday <= 7) level = 2; else if (qToday <= 10) level = 3; else level = Math.floor(Math.random() * 3) + 1;
 
-    if (currentLevel === 1) {
+    if (level === 1) {
         operator = Math.random() > 0.5 ? "+" : "-";
         num1 = Math.floor(Math.random() * 11) + 10;
         num2 = Math.floor(Math.random() * 6) + 1;
-    } else if (currentLevel === 2) {
-        let chance = Math.random();
-        if (chance < 0.33) {
-            operator = "*";
-            num1 = Math.floor(Math.random() * 4) + 1;
-            num2 = Math.floor(Math.random() * 4) + 1;
-        } else {
-            operator = Math.random() > 0.5 ? "+" : "-";
-            num1 = Math.floor(Math.random() * 11) + 10;
-            num2 = Math.floor(Math.random() * 9) + 1;
-        }
+    } else if (level === 2) {
+        let r = Math.random();
+        if (r < 0.33) { operator = "*"; num1 = Math.floor(Math.random() * 4) + 1; num2 = Math.floor(Math.random() * 4) + 1; }
+        else { operator = Math.random() > 0.5 ? "+" : "-"; num1 = Math.floor(Math.random() * 11) + 10; num2 = Math.floor(Math.random() * 9) + 1; }
     } else {
-        let chance = Math.random();
-        if (chance < 0.25) {
-            operator = "+"; num1 = Math.floor(Math.random() * 31) + 20; num2 = Math.floor(Math.random() * 10) + 10;
-        } else if (chance < 0.50) {
-            operator = "-"; num1 = Math.floor(Math.random() * 31) + 20; num2 = Math.floor(Math.random() * 10) + 10;
-        } else if (chance < 0.75) {
-            operator = "*"; num1 = Math.floor(Math.random() * 6) + 2; num2 = Math.floor(Math.random() * 6) + 2;
-        } else {
-            operator = "/"; let v1 = Math.floor(Math.random() * 6) + 2; let v2 = Math.floor(Math.random() * 6) + 2;
-            num1 = v1 * v2; num2 = v1;
-        }
+        let r = Math.random();
+        if (r < 0.25) { operator = "+"; num1 = Math.floor(Math.random() * 31) + 20; num2 = Math.floor(Math.random() * 10) + 10; }
+        else if (r < 0.50) { operator = "-"; num1 = Math.floor(Math.random() * 31) + 20; num2 = Math.floor(Math.random() * 10) + 10; }
+        else if (r < 0.75) { operator = "*"; num1 = Math.floor(Math.random() * 6) + 2; num2 = Math.floor(Math.random() * 6) + 2; }
+        else { operator = "/"; let v1 = Math.floor(Math.random() * 6) + 2; let v2 = Math.floor(Math.random() * 6) + 2; num1 = v1 * v2; num2 = v1; }
     }
     if (operator === "-" && num2 > num1) [num1, num2] = [num2, num1];
     correctAnswer = (operator === "+") ? num1 + num2 : (operator === "-") ? num1 - num2 : (operator === "*") ? num1 * num2 : num1 / num2;
@@ -301,27 +295,30 @@ function checkAnswer() {
     else { 
         const grid = document.getElementById("letterGrid"); 
         for (let i = 1; i < currentWord.length - 1; i++) { 
-            if (!grid.children[i].innerText.trim() || grid.children[i].style.opacity === "0.5") { 
+            if (!grid.children[i].innerText.trim() || grid.children[i].classList.contains('hint')) { 
                 document.getElementById("message").innerText = "Type the letters! ✍️"; return; 
             } 
         } 
         Array.from(grid.children).forEach(b => val += b.innerText); 
     }
     isProcessing = true;
-    if ((mode === "math" && parseInt(val) === correctAnswer) || (mode === "spelling" && val.toLowerCase() === currentWord)) {
+    const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
+    
+    if (isCorrect) {
         if (user.today < 300) { if (mode === "math") { user.math++; user.mathTotal++; } else { user.spell++; user.spellTotal++; } user.today += 10; user.total += 10; }
         document.getElementById("message").style.color = "#55efc4"; document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`; sync(); updateScore(); playCheer(); createConfetti(); setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
     } else {
-        attempts++; if (user.today > 0) user.today -= 3; document.getElementById("message").style.color = "#ff7675"; document.getElementById("message").innerText = "-3 Tokens 💨"; playFart();
+        attempts++; if (user.today > 0) { user.today = Math.max(0, user.today - 3); user.total = Math.max(0, user.total - 3); }
+        document.getElementById("message").style.color = "#ff7675"; document.getElementById("message").innerText = "-3 Tokens 💨"; playFart();
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; showMathHelp(); }
         else { 
             const g = document.getElementById("letterGrid"); let empty = []; 
             for(let i=1; i<currentWord.length-1; i++) if(!g.children[i].innerText.trim()) empty.push(i);
             if(empty.length > 0) {
                 let r = empty[Math.floor(Math.random()*empty.length)];
-                g.children[r].innerText = currentWord[r]; g.children[r].style.color = "#ffeaa7"; g.children[r].style.opacity = "0.5";
+                g.children[r].innerText = currentWord[r]; g.children[r].classList.add('hint');
             }
-            for(let i=1; i<currentWord.length-1; i++) if (g.children[i].style.opacity !== "0.5") g.children[i].innerText = "";
+            for(let i=1; i<currentWord.length-1; i++) if (!g.children[i].classList.contains('hint')) g.children[i].innerText = "";
             activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
         }
         sync(); updateScore(); isProcessing = false;
@@ -346,6 +343,5 @@ function playFart() { const osc = audioCtx.createOscillator(); const g = audioCt
 function createConfetti() { for (let i = 0; i < 40; i++) { const c = document.createElement('div'); c.style.position = 'fixed'; c.style.width = '8px'; c.style.height = '8px'; c.style.zIndex = '4000'; c.style.left = Math.random() * 100 + 'vw'; c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; c.style.animation = `fall ${Math.random() * 1.5 + 1}s linear forwards`; document.body.appendChild(c); setTimeout(() => c.remove(), 2500); } }
 function resetPrompt() { let b = Math.floor(Math.random()*4)+11; if (prompt(`${b}x${b}?`) == b*b) { let c = prompt("1:Day 2:Total"); if(c=="1") { user.math=0; user.spell=0; user.today=0; } else if(c=="2") { user.total=0; user.math=0; user.spell=0; user.today=0; user.mathTotal=0; user.spellTotal=0; } sync(); updateScore(); } }
 </script>
-<style> @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } } </style>
 </body>
 </html>
