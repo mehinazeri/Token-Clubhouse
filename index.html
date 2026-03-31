@@ -1,43 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 6.30</title>
+  <title>Melorin Clubhouse 6.20</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="apple-touch-icon" href="icon.png">
   <style>
     :root { --primary: #6c5ce7; --bg: #f0f2f5; --card-inner: #6c5ce7; --text-light: #ffffff; --text-dark: #2d3436; --key-bg: #ffffff; --key-shadow: #dfe6e9; }
     body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: var(--bg); margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; touch-action: manipulation; }
+    
     #mainWrapper { width: 95%; max-width: 440px; height: 92vh; display: flex; flex-direction: column; position: relative; background: var(--card-inner); border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); overflow: hidden; }
+    
     #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 3000; display: none; align-items: center; justify-content: center; flex-direction: column; color: white; }
     .loading-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid var(--primary); font-weight: 900; font-size: 20px; text-align: center; color: var(--primary); }
+    
     #loginScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2500; color: white; }
     #loginScreen input { margin: 10px; padding: 18px; border-radius: 15px; border: none; font-size: 18px; width: 250px; text-align: center; outline: none; }
     #loginScreen button { background: #4CAF50; color: white; padding: 16px 32px; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; font-size: 18px; }
+
     .top-section { padding: 10px 15px; height: 62%; display: flex; flex-direction: column; box-sizing: border-box; color: white; position: relative; }
+    
+    /* Button Placements */
     #adminBtn { position: absolute; top: 10px; left: 15px; background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.5; color: white; }
     #exitBtn { position: absolute; top: 10px; right: 15px; background: #ff7675; color: white; border: none; border-radius: 8px; padding: 5px 12px; font-size: 10px; font-weight: 900; cursor: pointer; z-index: 20; }
+
     .top-stats { background: rgba(255,255,255,0.15); padding: 8px; border-radius: 18px; display: flex; flex-direction: column; gap: 2px; margin-bottom: 5px; border: 1px solid rgba(255,255,255,0.2); margin-top: 25px; }
     .stat-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: 900; color: white; }
     .stat-row b { color: #ffeaa7; font-size: 13px; }
+    
     .mode-btns { display: flex; flex-direction: row; gap: 5px; justify-content: center; margin-top: 4px; }
     #modeBtn, #leadBtn { background: #ffffff; color: var(--primary); border: none; border-radius: 8px; font-size: 10px; font-weight: 900; padding: 5px 10px; cursor: pointer; text-transform: uppercase; width: 110px; }
+
+    #leaderboardView { display: none; flex-grow: 1; padding: 5px; color: white; text-align: center; justify-content: center; flex-direction: column; }
+    .lead-cat { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 5px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.1); }
+    .lead-cat h3 { margin: 0 0 4px 0; font-size: 13px; color: #ffeaa7; text-transform: uppercase; }
+    .lead-item { display: flex; justify-content: space-between; padding: 2px 10px; font-size: 14px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
     .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     .question { font-size: 44px; font-weight: 900; color: white; margin-bottom: 5px; width: 100%; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     #displayArea { font-size: 36px; font-weight: 900; color: #55efc4; min-height: 40px; border-bottom: 3px dashed rgba(255,255,255,0.4); min-width: 70px; text-align: center; }
+    
     .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 4px; margin: 10px 0; width: 100%; }
     .letter-box { width: 34px; height: 44px; font-size: 24px; text-align: center; border: 2.5px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); color: white; }
     .letter-box.active { border-color: #55efc4 !important; background: rgba(85, 239, 196, 0.2) !important; }
-    .letter-box.hint { color: #ffeaa7 !important; opacity: 0.6; border-color: #ffeaa7 !important; }
+    .letter-box.hint { color: rgba(255, 255, 255, 0.3) !important; border-color: #ffeaa7 !important; }
+
     #keyboardArea { height: 28%; background: #f1f2f6; padding: 6px; display: flex; flex-direction: column; justify-content: space-between; border-top: 1px solid #ddd; }
     .kb-row { display: flex; justify-content: center; gap: 3px; width: 100%; }
     .key { background: var(--key-bg); border-radius: 6px; padding: 10px 0; font-size: 18px; font-weight: 900; flex: 1; max-width: 38px; border: none; box-shadow: 0 3px 0 var(--key-shadow); color: var(--text-dark); }
     .key:active { transform: translateY(2px); box-shadow: none; }
     .key.action { background: #4CAF50; color: white; box-shadow: 0 3px 0 #2d7031; max-width: 65px; }
     .key.del { background: #ff7675; color: white; box-shadow: 0 3px 0 #d63031; max-width: 65px; }
+
     .bottom-info { position: absolute; bottom: 0; width: 100%; height: 10%; padding: 5px 30px; display: flex; flex-direction: column; justify-content: center; background: white; border-top: 1px solid #eee; z-index: 10; box-sizing: border-box; }
     .progress-container { width: 100%; height: 8px; background: #f1f2f6; border-radius: 4px; overflow: hidden; margin-top: 2px; }
     #progressBar { height: 100%; width: 0%; background: linear-gradient(90deg, #4CAF50, #00b894); transition: width 0.6s ease; }
     #message { font-weight: 900; height: 18px; font-size: 15px; margin-bottom: 2px; text-align: center; }
+
+    #helpArea { background: rgba(255,255,255,0.95); border-radius: 18px; padding: 8px; min-height: 80px; display: none; align-items: center; justify-content: center; flex-direction: column; margin: 0 10px; overflow: hidden; }
+    .ten-frame-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #0984e3; }
+    .dot.secondary { background: #d63031; }
+    .dot.dim { background: #dfe6e9; opacity: 0.3; }
+    .division-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; width: 100%; }
+    .division-group { border: 2px solid #4CAF50; padding: 2px; border-radius: 6px; display: inline-flex; flex-wrap: wrap; gap: 1px; background: white; justify-content: center; }
   </style>
 </head>
 <body>
@@ -54,9 +79,11 @@
     </div>
     <p id="loginError" style="font-size:14px; margin-top:15px; color:#ffeaa7; font-weight:900;"></p>
   </div>
+
   <div class="top-section" id="appContent" style="display:none;">
     <button id="adminBtn" onclick="resetPrompt()">⚙️</button>
     <button id="exitBtn" onclick="location.reload()">EXIT ✖</button>
+
     <div class="top-stats">
       <div class="stat-row"><span>Math Today: <b><span id="mathTDisplay">0</span>/10</b></span><span>Math Total: <b><span id="mathTotalDisplay">0</span></b></span></div>
       <div class="stat-row"><span>Spell Today: <b><span id="spellTDisplay">0</span>/20</b></span><span>Spell Total: <b><span id="spellTotalDisplay">0</span></b></span></div>
@@ -65,6 +92,7 @@
         <button id="leadBtn" onclick="toggleLeaderboard()">🏆 Leaders</button>
       </div>
     </div>
+
     <div class="question-area" id="gameView">
       <div id="mathArea"><div class="question" id="mathQuestion"></div><div id="displayArea">?</div></div>
       <div id="spellingArea" style="display:none; width:100%; text-align:center;">
@@ -72,12 +100,15 @@
         <div id="letterGrid" class="letter-grid"></div>
       </div>
     </div>
+
     <div id="leaderboardView">
       <div id="leadContainer"></div>
       <button onclick="toggleLeaderboard()" style="background:#4CAF50; color:white; border:none; border-radius:10px; padding:8px; font-weight:900; margin-top:4px; width:100%; font-size:13px;">BACK TO GAME</button>
     </div>
+
     <div id="helpArea"></div>
   </div>
+
   <div id="keyboardArea" style="display:none;">
     <div id="numpad" style="display:none; width: 100%;">
       <div class="kb-row"><button class="key" onclick="keyPress('1')">1</button><button class="key" onclick="keyPress('2')">2</button><button class="key" onclick="keyPress('3')">3</button></div>
@@ -91,6 +122,7 @@
       <div class="kb-row" style="padding:0 2%"><button class="key del" onclick="keyPress('DEL')">⌫</button><button class="key" onclick="keyPress('z')">z</button><button class="key" onclick="keyPress('x')">x</button><button class="key" onclick="keyPress('c')">c</button><button class="key" onclick="keyPress('v')">v</button><button class="key" onclick="keyPress('b')">b</button><button class="key" onclick="keyPress('n')">n</button><button class="key" onclick="keyPress('m')">m</button><button class="key action" onclick="checkAnswer()">OK</button></div>
     </div>
   </div>
+
   <div class="bottom-info" id="tokenFooter" style="display:none;"><p id="message"></p><div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900; color: #636e72;"><span>Today: <span id="todayTokensDisplay">0</span>/300</span><span>Bank: <span id="totalTokensDisplay">0</span> 🪙</span></div><div class="progress-container"><div id="progressBar"></div></div></div>
 </div>
 
@@ -335,3 +367,4 @@ function resetPrompt(){let b=Math.floor(Math.random()*4)+11;if(prompt(`${b}x${b}
 <style> @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } } </style>
 </body>
 </html>
+
