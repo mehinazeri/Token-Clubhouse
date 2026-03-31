@@ -21,15 +21,21 @@
     .stat-row b { color: #ffeaa7; font-size: 13px; }
     .mode-btns { display: flex; flex-direction: row; gap: 5px; justify-content: center; margin-top: 4px; }
     #modeBtn, #leadBtn { background: #ffffff; color: var(--primary); border: none; border-radius: 8px; font-size: 10px; font-weight: 900; padding: 5px 10px; cursor: pointer; text-transform: uppercase; width: 110px; }
+    #leaderboardView { display: none; flex-grow: 1; padding: 5px; color: white; text-align: center; justify-content: center; flex-direction: column; }
+    .lead-cat { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 5px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.1); }
+    .lead-cat h3 { margin: 0 0 4px 0; font-size: 13px; color: #ffeaa7; text-transform: uppercase; }
+    .lead-item { display: flex; justify-content: space-between; padding: 2px 10px; font-size: 14px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .question-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     .question { font-size: 44px; font-weight: 900; color: white; margin-bottom: 5px; width: 100%; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     #displayArea { font-size: 36px; font-weight: 900; color: #55efc4; min-height: 40px; border-bottom: 3px dashed rgba(255,255,255,0.4); min-width: 70px; text-align: center; }
     .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 4px; margin: 10px 0; width: 100%; }
     .letter-box { width: 34px; height: 44px; font-size: 24px; text-align: center; border: 2.5px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); color: white; }
     .letter-box.active { border-color: #55efc4 !important; background: rgba(85, 239, 196, 0.2) !important; }
+    .letter-box.hint { color: #ffeaa7 !important; opacity: 0.5; }
     #keyboardArea { height: 28%; background: #f1f2f6; padding: 6px; display: flex; flex-direction: column; justify-content: space-between; border-top: 1px solid #ddd; }
     .kb-row { display: flex; justify-content: center; gap: 3px; width: 100%; }
-    .key { background: white; border-radius: 6px; padding: 10px 0; font-size: 18px; font-weight: 900; flex: 1; max-width: 38px; border: none; box-shadow: 0 3px 0 #dfe6e9; color: #2d3436; }
+    .key { background: var(--key-bg); border-radius: 6px; padding: 10px 0; font-size: 18px; font-weight: 900; flex: 1; max-width: 38px; border: none; box-shadow: 0 3px 0 var(--key-shadow); color: var(--text-dark); }
+    .key:active { transform: translateY(2px); box-shadow: none; }
     .key.action { background: #4CAF50; color: white; box-shadow: 0 3px 0 #2d7031; max-width: 65px; }
     .key.del { background: #ff7675; color: white; box-shadow: 0 3px 0 #d63031; max-width: 65px; }
     .bottom-info { position: absolute; bottom: 0; width: 100%; height: 10%; padding: 5px 30px; display: flex; flex-direction: column; justify-content: center; background: white; border-top: 1px solid #eee; z-index: 10; box-sizing: border-box; }
@@ -37,12 +43,15 @@
     #progressBar { height: 100%; width: 0%; background: linear-gradient(90deg, #4CAF50, #00b894); transition: width 0.6s ease; }
     #message { font-weight: 900; height: 18px; font-size: 15px; margin-bottom: 2px; text-align: center; }
     #helpArea { background: rgba(255,255,255,0.95); border-radius: 18px; padding: 8px; min-height: 80px; display: none; align-items: center; justify-content: center; flex-direction: column; margin: 0 10px; overflow: hidden; }
+    .ten-frame-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
     .dot { width: 10px; height: 10px; border-radius: 50%; background: #0984e3; }
-    #leaderboardView { display: none; flex-grow: 1; padding: 5px; color: white; text-align: center; justify-content: center; flex-direction: column; }
+    .dot.secondary { background: #d63031; }
+    .dot.dim { background: #dfe6e9; opacity: 0.3; }
+    .division-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; width: 100%; }
+    .division-group { border: 2px solid #4CAF50; padding: 2px; border-radius: 6px; display: inline-flex; flex-wrap: wrap; gap: 1px; background: white; justify-content: center; }
   </style>
 </head>
 <body>
-
 <div id="mainWrapper">
   <div id="loadingOverlay"><div class="loading-box" id="loadMsg">Connecting...</div></div>
   <div id="loginScreen">
@@ -55,7 +64,6 @@
     </div>
     <p id="loginError" style="font-size:14px; margin-top:15px; color:#ffeaa7; font-weight:900;"></p>
   </div>
-
   <div class="top-section" id="appContent" style="display:none;">
     <button id="adminBtn" onclick="resetPrompt()">⚙️</button>
     <button id="exitBtn" onclick="location.reload()">EXIT ✖</button>
@@ -74,10 +82,9 @@
         <div id="letterGrid" class="letter-grid"></div>
       </div>
     </div>
-    <div id="leaderboardView"><div id="leadContainer"></div><button onclick="toggleLeaderboard()" style="background:#4CAF50; color:white; border:none; border-radius:10px; padding:8px; font-weight:900; margin-top:4px; width:100%;">BACK</button></div>
+    <div id="leaderboardView"><div id="leadContainer"></div><button onclick="toggleLeaderboard()" style="background:#4CAF50; color:white; border:none; border-radius:10px; padding:8px; font-weight:900; margin-top:4px; width:100%; font-size:13px;">BACK TO GAME</button></div>
     <div id="helpArea"></div>
   </div>
-
   <div id="keyboardArea" style="display:none;">
     <div id="numpad" style="display:none; width: 100%;">
       <div class="kb-row"><button class="key" onclick="keyPress('1')">1</button><button class="key" onclick="keyPress('2')">2</button><button class="key" onclick="keyPress('3')">3</button></div>
@@ -91,24 +98,32 @@
       <div class="kb-row" style="padding:0 2%"><button class="key del" onclick="keyPress('DEL')">⌫</button><button class="key" onclick="keyPress('z')">z</button><button class="key" onclick="keyPress('x')">x</button><button class="key" onclick="keyPress('c')">c</button><button class="key" onclick="keyPress('v')">v</button><button class="key" onclick="keyPress('b')">b</button><button class="key" onclick="keyPress('n')">n</button><button class="key" onclick="keyPress('m')">m</button><button class="key action" onclick="checkAnswer()">OK</button></div>
     </div>
   </div>
-
   <div class="bottom-info" id="tokenFooter" style="display:none;"><p id="message"></p><div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900; color: #636e72;"><span>Today: <span id="todayTokensDisplay">0</span>/300</span><span>Bank: <span id="totalTokensDisplay">0</span> 🪙</span></div><div class="progress-container"><div id="progressBar"></div></div></div>
 </div>
-
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDJCP05Ic2Tf0ClgR8RdQ0leMZvGPXdlNLTQ_gpPwXZIokfdj19eT4PVwtQBzjvfYZww/exec';
-let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "", mathTotal: 0, spellTotal: 0 };
-let mode = "math", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [], questionsSinceMistake = 0, isProcessing = false;
+let user = { name: "", pin: "", total: 0, math: 0, spell: 0, today: 0, logs: "", history: 0, lastDate: "", mathTotal: 0, spellTotal: 0 };
+let mode = "spelling", spellingWords = [], currentWord = "", spellQueue = [], mistakeBuffer = [], questionsSinceMistake = 0, isProcessing = false;
 let num1, num2, operator, correctAnswer, attempts = 0, currentInput = "", activeBoxIndex = 1;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
-
+async function updatePinPrompt() {
+    const name = capitalize(document.getElementById("loginName").value.trim());
+    const oldPin = document.getElementById("loginPin").value.trim();
+    if(!name || !oldPin) return alert("Enter Name and PIN");
+    const newPin = prompt("Enter new 4-digit PIN:");
+    if(newPin && newPin.length === 4) {
+        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ name, oldPin, newPin, action: "updatePin" }) });
+        const result = await res.text();
+        if(result === "success") { alert("PIN Updated!"); location.reload(); }
+    }
+}
 async function attemptLogin() {
     const nameInput = document.getElementById("loginName").value.trim();
     const pinInput = document.getElementById("loginPin").value.trim();
     if(!nameInput || !pinInput) return;
     const name = capitalize(nameInput);
+    document.getElementById("loadMsg").innerText = `Connecting to ${name}...`;
     document.getElementById("loadingOverlay").style.display = "flex";
     try {
         const res = await fetch(`${SCRIPT_URL}?action=login&name=${name}&pin=${pinInput}`);
@@ -117,7 +132,7 @@ async function attemptLogin() {
             document.getElementById("loadingOverlay").style.display = "none";
             document.getElementById("loginError").innerText = "Wrong name or PIN!"; 
         } else {
-            user = { name, pin: pinInput, ...data };
+            user = { name, pin: pinInput, ...data, total: parseInt(data.total)||0, math: parseInt(data.math)||0, spell: parseInt(data.spell)||0, today: parseInt(data.today)||0, mathTotal: parseInt(data.mathTotal)||0, spellTotal: parseInt(data.spellTotal)||0 };
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("loadingOverlay").style.display = "none";
             document.getElementById("appContent").style.display = "flex";
@@ -125,24 +140,34 @@ async function attemptLogin() {
             document.getElementById("tokenFooter").style.display = "flex";
             await loadWords(); updateScore(); nextTask();
         }
-    } catch(e) { document.getElementById("loadingOverlay").style.display = "none"; }
+    } catch(e) { document.getElementById("loadingOverlay").style.display = "none"; document.getElementById("loginError").innerText = "Connection Error"; }
 }
-
+async function toggleLeaderboard() {
+    const gv = document.getElementById("gameView"), lv = document.getElementById("leaderboardView"), ka = document.getElementById("keyboardArea");
+    if (lv.style.display === "flex") { lv.style.display = "none"; gv.style.display = "flex"; ka.style.display = "flex"; }
+    else {
+        gv.style.display = "none"; ka.style.display = "none"; lv.style.display = "flex";
+        document.getElementById("leadContainer").innerHTML = "Loading...";
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getLeaderboard`);
+            renderLeaderboard(await res.json());
+        } catch(e) { document.getElementById("leadContainer").innerHTML = "Error loading leaders."; }
+    }
+}
+function renderLeaderboard(data) {
+    const b = [...data].sort((x,y) => y.total - x.total).slice(0,5);
+    const s = [...data].sort((x,y) => y.spellTotal - x.spellTotal).slice(0,5);
+    const m = [...data].sort((x,y) => y.mathTotal - x.mathTotal).slice(0,5);
+    document.getElementById("leadContainer").innerHTML = `
+        <div class="lead-cat"><h3>💰 BANK TOP 5</h3>${b.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.total}</span></div>`).join('')}</div>
+        <div class="lead-cat"><h3>📖 SPELL TOP 5</h3>${s.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.spellTotal}</span></div>`).join('')}</div>
+        <div class="lead-cat"><h3>🔢 MATH TOP 5</h3>${m.map((u,i)=>`<div class="lead-item"><span>${i+1}. ${capitalize(u.name)}</span><span>${u.mathTotal}</span></div>`).join('')}</div>`;
+}
+function updateScore() { document.getElementById("mathTDisplay").innerText = user.math; document.getElementById("mathTotalDisplay").innerText = user.mathTotal; document.getElementById("spellTDisplay").innerText = user.spell; document.getElementById("spellTotalDisplay").innerText = user.spellTotal; document.getElementById("todayTokensDisplay").innerText = user.today; document.getElementById("totalTokensDisplay").innerText = user.total; document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%"; }
 async function loadWords() { const res = await fetch(`${SCRIPT_URL}?action=getWords`); spellingWords = await res.json(); spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); }
 async function sync() { fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({...user, action: "sync"}) }); }
-function updateScore() { document.getElementById("mathTDisplay").innerText = user.math; document.getElementById("mathTotalDisplay").innerText = user.mathTotal; document.getElementById("spellTDisplay").innerText = user.spell; document.getElementById("spellTotalDisplay").innerText = user.spellTotal; document.getElementById("todayTokensDisplay").innerText = user.today; document.getElementById("totalTokensDisplay").innerText = user.total; document.getElementById("progressBar").style.width = Math.min((user.today/300)*100, 100) + "%"; }
 function toggleMode() { mode = (mode === "math") ? "spelling" : "math"; nextTask(); }
-
-function nextTask() {
-    attempts = 0; currentInput = ""; document.getElementById("message").innerText = "";
-    document.getElementById("mathArea").style.display = (mode === "math") ? "block" : "none";
-    document.getElementById("spellingArea").style.display = (mode === "spelling") ? "block" : "none";
-    document.getElementById("numpad").style.display = (mode === "math") ? "block" : "none";
-    document.getElementById("spellpad").style.display = (mode === "spelling") ? "block" : "none";
-    document.getElementById("helpArea").style.display = "none";
-    if (mode === "math") generateMath(); else generateSpelling();
-}
-
+function nextTask() { attempts = 0; currentInput = ""; document.getElementById("message").innerText = ""; document.getElementById("mathArea").style.display = (mode === "math") ? "block" : "none"; document.getElementById("spellingArea").style.display = (mode === "spelling") ? "block" : "none"; document.getElementById("numpad").style.display = (mode === "math") ? "block" : "none"; document.getElementById("spellpad").style.display = (mode === "spelling") ? "block" : "none"; document.getElementById("helpArea").style.display = "none"; if (mode === "math") generateMath(); else generateSpelling(); }
 function keyPress(val) {
     if (mode === "math") {
         if (val === "DEL") currentInput = currentInput.slice(0, -1);
@@ -150,12 +175,11 @@ function keyPress(val) {
         document.getElementById("displayArea").innerText = currentInput || "?";
     } else {
         const grid = document.getElementById("letterGrid");
-        if (val === "DEL") { if (activeBoxIndex > 1) { activeBoxIndex--; grid.children[activeBoxIndex].innerText = ""; updateActiveBox(); } }
-        else { if (activeBoxIndex < currentWord.length - 1) { grid.children[activeBoxIndex].innerText = val; activeBoxIndex++; updateActiveBox(); } }
+        if (val === "DEL") { if (activeBoxIndex > 1) { activeBoxIndex--; grid.children[activeBoxIndex].innerText = ""; grid.children[activeBoxIndex].classList.remove('hint'); updateActiveBox(); } }
+        else { if (activeBoxIndex < currentWord.length - 1) { grid.children[activeBoxIndex].innerText = val; grid.children[activeBoxIndex].classList.remove('hint'); activeBoxIndex++; updateActiveBox(); } }
     }
 }
 function updateActiveBox() { Array.from(document.getElementById("letterGrid").children).forEach((b, i) => { b.classList.toggle('active', i === activeBoxIndex && i < currentWord.length - 1); }); }
-
 function generateMath() {
     const qToday = user.math + 1;
     let level = (qToday <= 3) ? 1 : (qToday <= 7) ? 2 : 3;
@@ -167,7 +191,6 @@ function generateMath() {
     document.getElementById("mathQuestion").innerText = `${num1} ${operator === '*' ? '×' : (operator === '/' ? '÷' : operator)} ${num2}`;
     document.getElementById("displayArea").innerText = "?";
 }
-
 function generateSpelling() {
     if (mistakeBuffer.length > 0 && questionsSinceMistake >= 4) { currentWord = mistakeBuffer.shift(); questionsSinceMistake = 0; }
     else { if (spellQueue.length === 0) spellQueue = [...spellingWords].sort(() => Math.random() - 0.5); currentWord = spellQueue.pop().toLowerCase(); questionsSinceMistake++; }
@@ -180,12 +203,11 @@ function generateSpelling() {
     updateActiveBox(); setTimeout(sayWord, 400);
 }
 function sayWord() { window.speechSynthesis.cancel(); let m = new SpeechSynthesisUtterance(currentWord); m.rate = 0.7; window.speechSynthesis.speak(m); }
-
 function checkAnswer() {
     if (isProcessing) return;
     let val = "";
     if (mode === "math") { val = currentInput.trim(); if (!val) return; }
-    else { Array.from(document.getElementById("letterGrid").children).forEach(b => val += b.innerText); }
+    else { const grid = document.getElementById("letterGrid"); for (let i = 0; i < currentWord.length; i++) { val += grid.children[i].innerText; } }
     isProcessing = true;
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
     if (isCorrect) {
@@ -194,35 +216,38 @@ function checkAnswer() {
         if (mode === "math") { user.math++; user.mathTotal++; } else { user.spell++; user.spellTotal++; }
         user.today += reward; user.total += reward;
         document.getElementById("message").style.color = "#55efc4"; 
-        document.getElementById("message").innerText = reward > 0 ? "Bravo! 🌟" : "Bonus Round Point! 🏆";
-        sync(); updateScore(); playCheer(); createConfetti();
+        document.getElementById("message").innerText = reward > 0 ? `Bravo ${user.name}! 🌟` : "Bonus Point! 🏆"; 
+        sync(); updateScore(); playCheer(); createConfetti(); 
         setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
     } else {
         attempts++;
         let canLose = (mode === "math" && user.math < 10) || (mode === "spelling" && user.spell < 20);
-        if (canLose && user.today > 0) { user.today = Math.max(0, user.today - 3); user.total = Math.max(0, user.total - 3); document.getElementById("message").innerText = "-3 Tokens 💨"; playFart(); }
-        else { document.getElementById("message").innerText = "Try again! 💪"; }
-        document.getElementById("message").style.color = "#ff7675";
+        if (canLose && user.today > 0) { 
+            user.today = Math.max(0, user.today - 3); user.total = Math.max(0, user.total - 3); 
+            document.getElementById("message").innerText = "-3 Tokens 💨"; playFart(); 
+        } else { document.getElementById("message").innerText = "Bonus Round: Try again! 💪"; }
+        document.getElementById("message").style.color = "#ff7675"; 
         if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; showMathHelp(); }
-        else { activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); }
+        else { 
+            const g = document.getElementById("letterGrid"); let empty = []; 
+            for(let i=1; i<currentWord.length-1; i++) if(!g.children[i].innerText.trim()) empty.push(i);
+            if(empty.length > 0) { let r = empty[Math.floor(Math.random()*empty.length)]; g.children[r].innerText = currentWord[r]; g.children[r].classList.add('hint'); }
+            for(let i=1; i<currentWord.length-1; i++) if (!g.children[i].classList.contains('hint')) g.children[i].innerText = "";
+            activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
+        }
         sync(); updateScore(); isProcessing = false;
     }
 }
-
 function showMathHelp() {
     const aid = document.getElementById("helpArea"); aid.innerHTML = ""; aid.style.display = "flex";
-    for(let i=0; i<num1; i++) { const d = document.createElement("div"); d.className = "dot"; aid.appendChild(d); }
+    if (operator === "*") { for(let r=0; r<num1; r++) { const row = document.createElement("div"); row.style.display="flex"; row.style.justifyContent="center"; for(let c=0; c<num2; c++) { const d=document.createElement("div"); d.className="dot"; d.style.margin="1.5px"; row.appendChild(d); } aid.appendChild(row); } }
+    else if (operator === "/") { const row = document.createElement("div"); row.className = "division-row"; for(let g=0; g<num2; g++) { const grp = document.createElement("div"); grp.className = "division-group"; for(let i=0; i<correctAnswer; i++) { const d = document.createElement("div"); d.className = "dot"; grp.appendChild(d); } row.appendChild(grp); } aid.appendChild(row); }
+    else { const r1 = document.createElement("div"); r1.className = "ten-frame-grid"; for(let i=0; i<num1; i++) { const d = document.createElement("div"); d.className = (operator === "-" && i < num2) ? "dot dim" : "dot"; r1.appendChild(d); } aid.appendChild(r1); if (operator === "+") { const r2 = document.createElement("div"); r2.className = "ten-frame-grid"; for(let i=0; i<num2; i++) { const d = document.createElement("div"); d.className = "dot secondary"; r2.appendChild(d); } aid.appendChild(r2); } }
 }
-function playCheer() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.2); }
-function playFart() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sawtooth'; osc.start(); osc.stop(audioCtx.currentTime + 0.3); }
-function createConfetti() { for (let i = 0; i < 30; i++) { const c = document.createElement('div'); c.style.position = 'fixed'; c.style.width = '8px'; c.style.height = '8px'; c.style.left = Math.random() * 100 + 'vw'; c.style.backgroundColor = 'red'; c.style.animation = 'fall 2s linear forwards'; document.body.appendChild(c); } }
-async function updatePinPrompt() { alert("Contact Admin to change PIN"); }
-async function toggleLeaderboard() {
-    const lv = document.getElementById("leaderboardView"), gv = document.getElementById("gameView"), ka = document.getElementById("keyboardArea");
-    if (lv.style.display === "flex") { lv.style.display = "none"; gv.style.display = "flex"; ka.style.display = "flex"; }
-    else { lv.style.display = "flex"; gv.style.display = "none"; ka.style.display = "none"; }
-}
-function resetPrompt() { if(prompt("Code?") == "123") { user.math=0; user.spell=0; sync(); updateScore(); } }
+function playCheer() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.frequency.setValueAtTime(500, 0); osc.frequency.exponentialRampToValueAtTime(1200, 0.1); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.2); }
+function playFart() { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.connect(g); g.connect(audioCtx.destination); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, 0); osc.frequency.linearRampToValueAtTime(40, 0.4); g.gain.setValueAtTime(0.1, 0); osc.start(); osc.stop(0.4); }
+function createConfetti() { for (let i = 0; i < 40; i++) { const c = document.createElement('div'); c.style.position = 'fixed'; c.style.width = '8px'; c.style.height = '8px'; c.style.zIndex = '4000'; c.style.left = Math.random() * 100 + 'vw'; c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; c.style.animation = `fall ${Math.random() * 1.5 + 1}s linear forwards`; document.body.appendChild(c); setTimeout(() => c.remove(), 2500); } }
+function resetPrompt(){let b=Math.floor(Math.random()*4)+11;if(prompt(`${b}x${b}?`)==b*b){let c=prompt("1: Reset Questions (Count 0)\n2: View & Clear Logs\n(300 Token Cap is LOCKED)");if(c==="1"){user.math=0;user.spell=0;sync();updateScore();alert("Questions reset! 300 token limit is still active.");}else if(c==="2"){if(!user.logs||!user.logs.trim())alert("No errors!");else{alert("--- ERRORS ---\n"+user.logs);user.logs="";sync();alert("Logs Cleared.");}}}}
 </script>
 <style> @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } } </style>
 </body>
