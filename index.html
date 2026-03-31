@@ -178,8 +178,21 @@ function keyPress(val) {
         document.getElementById("displayArea").innerText = currentInput || "?";
     } else {
         const grid = document.getElementById("letterGrid");
-        if (val === "DEL") { if (activeBoxIndex > 1) { activeBoxIndex--; grid.children[activeBoxIndex].innerText = ""; grid.children[activeBoxIndex].classList.remove('hint'); updateActiveBox(); } }
-        else { if (activeBoxIndex < currentWord.length - 1) { grid.children[activeBoxIndex].innerText = val; grid.children[activeBoxIndex].classList.remove('hint'); activeBoxIndex++; updateActiveBox(); } }
+        if (val === "DEL") { 
+            if (activeBoxIndex > 1) { 
+                activeBoxIndex--; 
+                grid.children[activeBoxIndex].innerText = ""; 
+                grid.children[activeBoxIndex].classList.remove('hint'); // Remove hint if she deletes
+                updateActiveBox();
+            } 
+        } else {
+            if (activeBoxIndex < currentWord.length - 1) { 
+                grid.children[activeBoxIndex].innerText = val; 
+                grid.children[activeBoxIndex].classList.remove('hint'); // Typing "solidifies" the letter
+                activeBoxIndex++; 
+                updateActiveBox();
+            } 
+        }
     }
 }
 function updateActiveBox() { Array.from(document.getElementById("letterGrid").children).forEach((b, i) => { b.classList.toggle('active', i === activeBoxIndex && i < currentWord.length - 1); }); }
