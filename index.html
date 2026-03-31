@@ -296,33 +296,40 @@ function checkAnswer() {
     }
     isProcessing = true;
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
-    
     if (isCorrect) {
-        let reward = (user.today < 300) ? 10 : 0;
+        // 1. Calculate Reward: Only if under the limit for the current mode
+        let canEarn = (mode === "math" && user.math < 10) || (mode === "spelling" && user.spell < 20);
+        let reward = canEarn ? 10 : 0;
+        
+        // 2. Increment Counters
         if (mode === "math") { user.math++; user.mathTotal++; } 
         else { user.spell++; user.spellTotal++; }
         
+        // 3. Update Bank
         user.today += reward;
         user.total += reward;
         
         document.getElementById("message").style.color = "#55efc4"; 
-        document.getElementById("message").innerText = `Bravo ${user.name}! 🌟`; 
+        document.getElementById("message").innerText = reward > 0 ? `Bravo ${user.name}! 🌟` : "Bonus Point! 🏆"; 
         sync(); updateScore(); playCheer(); createConfetti(); 
         setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
+        
     } else {
-        attempts++; 
-// Only penalize if she hasn't finished her 300 tokens for the day
-if (user.today > 0 && user.today < 300) { 
-    user.today = Math.max(0, user.today - 3); 
-    user.total = Math.max(0, user.total - 3); 
-    document.getElementById("message").innerText = "-3 Tokens 💨";
-} else if (user.today >= 300) {
-    // No token loss, just a helpful message
-    document.getElementById("message").innerText = "Keep trying! 💪";
-}
+        attempts++;
+        // 1. Determine if Penalty applies (only during the first 10/20)
+        let canLose = (mode === "math" && user.math < 10) || (mode === "spelling" && user.spell < 20);
+        
+        if (canLose && user.today > 0) { 
+            user.today = Math.max(0, user.today - 3); 
+            user.total = Math.max(0, user.total - 3); 
+            document.getElementById("message").innerText = "-3 Tokens 💨";
+            playFart(); // Sound only plays when tokens are lost
+        } else {
+            // Bonus Round: Helpful hint only
+            document.getElementById("message").innerText = "Bonus Round: Try again! 💪";
+        }
+        
         document.getElementById("message").style.color = "#ff7675"; 
-        document.getElementById("message").innerText = "-3 Tokens 💨"; 
-        playFart();
         if (mode === "math") { 
             currentInput = ""; 
             document.getElementById("displayArea").innerText = "?"; 
@@ -342,8 +349,7 @@ if (user.today > 0 && user.today < 300) {
         }
         sync(); updateScore(); isProcessing = false;
     }
-}
-// --- END CLEAN CODE HERE ---
+    
 function showMathHelp() {
     const aid = document.getElementById("helpArea"); aid.innerHTML = ""; aid.style.display = "flex";
     if (operator === "*") {
