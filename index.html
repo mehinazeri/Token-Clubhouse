@@ -311,10 +311,15 @@ function checkAnswer() {
         setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
     } else {
         attempts++; 
-        if (user.today > 0) { 
-            user.today = Math.max(0, user.today - 3); 
-            user.total = Math.max(0, user.total - 3); 
-        }
+// Only penalize if she hasn't finished her 300 tokens for the day
+if (user.today > 0 && user.today < 300) { 
+    user.today = Math.max(0, user.today - 3); 
+    user.total = Math.max(0, user.total - 3); 
+    document.getElementById("message").innerText = "-3 Tokens 💨";
+} else if (user.today >= 300) {
+    // No token loss, just a helpful message
+    document.getElementById("message").innerText = "Keep trying! 💪";
+}
         document.getElementById("message").style.color = "#ff7675"; 
         document.getElementById("message").innerText = "-3 Tokens 💨"; 
         playFart();
