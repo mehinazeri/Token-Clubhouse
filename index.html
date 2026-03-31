@@ -305,7 +305,7 @@ function checkAnswer() {
         document.getElementById("message").innerText = reward > 0 ? `Bravo ${user.name}! 🌟` : "Bonus Point! 🏆"; 
         sync(); updateScore(); playCheer(); createConfetti(); 
         setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
-    } else {
+} else {
         attempts++;
         let canLose = (mode === "math" && user.math < 10) || (mode === "spelling" && user.spell < 20);
         if (canLose && user.today > 0) { 
@@ -344,7 +344,6 @@ function checkAnswer() {
         }
         sync(); updateScore(); isProcessing = false;
     }
-}
 
 function showMathHelp() {
     const aid = document.getElementById("helpArea"); aid.innerHTML = ""; aid.style.display = "flex";
