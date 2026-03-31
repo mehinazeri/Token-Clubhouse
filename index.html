@@ -31,7 +31,10 @@
     .letter-grid { display: flex !important; flex-direction: row !important; justify-content: center; gap: 4px; margin: 10px 0; width: 100%; }
     .letter-box { width: 34px; height: 44px; font-size: 24px; text-align: center; border: 2.5px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); color: white; }
     .letter-box.active { border-color: #55efc4 !important; background: rgba(85, 239, 196, 0.2) !important; }
-    .letter-box.hint { color: #ffeaa7 !important; opacity: 0.5; }
+    .letter-box.hint { 
+    color: rgba(255, 255, 255, 0.3) !important; /* Faint white/gray */
+    border-color: #ffeaa7 !important; /* Yellow border to show it's a help letter */
+}
     #keyboardArea { height: 28%; background: #f1f2f6; padding: 6px; display: flex; flex-direction: column; justify-content: space-between; border-top: 1px solid #ddd; }
     .kb-row { display: flex; justify-content: center; gap: 3px; width: 100%; }
     .key { background: var(--key-bg); border-radius: 6px; padding: 10px 0; font-size: 18px; font-weight: 900; flex: 1; max-width: 38px; border: none; box-shadow: 0 3px 0 var(--key-shadow); color: var(--text-dark); }
