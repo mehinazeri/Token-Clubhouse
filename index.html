@@ -296,52 +296,37 @@ function checkAnswer() {
     }
     isProcessing = true;
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
+    
     if (isCorrect) {
-        // 1. Calculate Reward: Only if under the limit for the current mode
         let canEarn = (mode === "math" && user.math < 10) || (mode === "spelling" && user.spell < 20);
         let reward = canEarn ? 10 : 0;
-        
-        // 2. Increment Counters
-        if (mode === "math") { user.math++; user.mathTotal++; } 
-        else { user.spell++; user.spellTotal++; }
-        
-        // 3. Update Bank
+        if (mode === "math") { user.math++; user.mathTotal++; } else { user.spell++; user.spellTotal++; }
         user.today += reward;
         user.total += reward;
-        
         document.getElementById("message").style.color = "#55efc4"; 
         document.getElementById("message").innerText = reward > 0 ? `Bravo ${user.name}! 🌟` : "Bonus Point! 🏆"; 
         sync(); updateScore(); playCheer(); createConfetti(); 
         setTimeout(() => { isProcessing = false; nextTask(); }, 1500);
-        
     } else {
         attempts++;
-        // 1. Determine if Penalty applies (only during the first 10/20)
         let canLose = (mode === "math" && user.math < 10) || (mode === "spelling" && user.spell < 20);
-        
         if (canLose && user.today > 0) { 
             user.today = Math.max(0, user.today - 3); 
             user.total = Math.max(0, user.total - 3); 
             document.getElementById("message").innerText = "-3 Tokens 💨";
-            playFart(); // Sound only plays when tokens are lost
+            playFart();
         } else {
-            // Bonus Round: Helpful hint only
             document.getElementById("message").innerText = "Bonus Round: Try again! 💪";
         }
-        
         document.getElementById("message").style.color = "#ff7675"; 
         if (mode === "math") { 
-            currentInput = ""; 
-            document.getElementById("displayArea").innerText = "?"; 
-            showMathHelp(); 
+            currentInput = ""; document.getElementById("displayArea").innerText = "?"; showMathHelp(); 
         } else { 
-            const g = document.getElementById("letterGrid"); 
-            let empty = []; 
+            const g = document.getElementById("letterGrid"); let empty = []; 
             for(let i=1; i<currentWord.length-1; i++) if(!g.children[i].innerText.trim()) empty.push(i);
             if(empty.length > 0) {
                 let r = empty[Math.floor(Math.random()*empty.length)];
-                g.children[r].innerText = currentWord[r]; 
-                g.children[r].classList.add('hint');
+                g.children[r].innerText = currentWord[r]; g.children[r].classList.add('hint');
             }
             for(let i=1; i<currentWord.length-1; i++) if (!g.children[i].classList.contains('hint')) g.children[i].innerText = "";
             activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); 
@@ -349,7 +334,7 @@ function checkAnswer() {
         }
         sync(); updateScore(); isProcessing = false;
     }
-  }
+}
 function showMathHelp() {
     const aid = document.getElementById("helpArea"); aid.innerHTML = ""; aid.style.display = "flex";
     if (operator === "*") {
