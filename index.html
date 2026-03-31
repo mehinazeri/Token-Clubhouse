@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Melorin Clubhouse 6.01</title>
+  <title>Melorin Clubhouse 6.10</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="apple-touch-icon" href="icon.png">
   <style>
@@ -206,15 +206,30 @@ function sayWord() { window.speechSynthesis.cancel(); let m = new SpeechSynthesi
 function checkAnswer() {
     if (isProcessing) return;
     let val = "";
-    if (mode === "math") { val = currentInput.trim(); if (!val) return; }
-    else { const grid = document.getElementById("letterGrid"); for (let i = 0; i < currentWord.length; i++) { val += grid.children[i].innerText; } }
+    if (mode === "math") { 
+        val = currentInput.trim(); 
+        if (!val) return; 
+    } else { 
+        const grid = document.getElementById("letterGrid"); 
+        // BLOCKER: Check if any box is empty OR still just a "hint"
+        for (let i = 1; i < currentWord.length - 1; i++) { 
+            if (!grid.children[i].innerText.trim() || grid.children[i].classList.contains('hint')) { 
+                document.getElementById("message").innerText = "Type the letters! ✍️"; 
+                return; 
+            } 
+        } 
+        Array.from(grid.children).forEach(b => val += b.innerText); 
+    }
+    
     isProcessing = true;
     const isCorrect = (mode === "math") ? (parseInt(val) === correctAnswer) : (val.toLowerCase() === currentWord);
+    
     if (isCorrect) {
         let canEarn = (mode === "math" && user.math < 10) || (mode === "spelling" && user.spell < 20);
         let reward = canEarn ? 10 : 0;
         if (mode === "math") { user.math++; user.mathTotal++; } else { user.spell++; user.spellTotal++; }
-        user.today += reward; user.total += reward;
+        user.today += reward;
+        user.total += reward;
         document.getElementById("message").style.color = "#55efc4"; 
         document.getElementById("message").innerText = reward > 0 ? `Bravo ${user.name}! 🌟` : "Bonus Point! 🏆"; 
         sync(); updateScore(); playCheer(); createConfetti(); 
@@ -223,17 +238,38 @@ function checkAnswer() {
         attempts++;
         let canLose = (mode === "math" && user.math < 10) || (mode === "spelling" && user.spell < 20);
         if (canLose && user.today > 0) { 
-            user.today = Math.max(0, user.today - 3); user.total = Math.max(0, user.total - 3); 
-            document.getElementById("message").innerText = "-3 Tokens 💨"; playFart(); 
-        } else { document.getElementById("message").innerText = "Bonus Round: Try again! 💪"; }
+            user.today = Math.max(0, user.today - 3); 
+            user.total = Math.max(0, user.total - 3); 
+            document.getElementById("message").innerText = "-3 Tokens 💨";
+            playFart();
+        } else {
+            document.getElementById("message").innerText = "Try again! 💪";
+        }
         document.getElementById("message").style.color = "#ff7675"; 
-        if (mode === "math") { currentInput = ""; document.getElementById("displayArea").innerText = "?"; showMathHelp(); }
-        else { 
-            const g = document.getElementById("letterGrid"); let empty = []; 
+        
+        if (mode === "math") { 
+            currentInput = ""; document.getElementById("displayArea").innerText = "?"; showMathHelp(); 
+        } else { 
+            const g = document.getElementById("letterGrid"); 
+            let empty = []; 
             for(let i=1; i<currentWord.length-1; i++) if(!g.children[i].innerText.trim()) empty.push(i);
-            if(empty.length > 0) { let r = empty[Math.floor(Math.random()*empty.length)]; g.children[r].innerText = currentWord[r]; g.children[r].classList.add('hint'); }
-            for(let i=1; i<currentWord.length-1; i++) if (!g.children[i].classList.contains('hint')) g.children[i].innerText = "";
-            activeBoxIndex = 1; updateActiveBox(); setTimeout(sayWord, 600); if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
+            
+            // REVEAL LOGIC: Show the letter but mark it as a 'hint'
+            if(empty.length > 0) {
+                let r = empty[Math.floor(Math.random()*empty.length)];
+                g.children[r].innerText = currentWord[r]; 
+                g.children[r].classList.add('hint'); // This "locks" the OK button
+            }
+            
+            // Clear her wrong answers but keep the 'hint' visible
+            for(let i=1; i<currentWord.length-1; i++) {
+                if (!g.children[i].classList.contains('hint')) g.children[i].innerText = "";
+            }
+            
+            activeBoxIndex = 1; 
+            updateActiveBox(); 
+            setTimeout(sayWord, 600); 
+            if (!mistakeBuffer.includes(currentWord)) mistakeBuffer.push(currentWord); 
         }
         sync(); updateScore(); isProcessing = false;
     }
